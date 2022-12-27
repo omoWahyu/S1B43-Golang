@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Batch 43 - Day 5 | Wahyudi Chrisdianto</title>
+  <link rel="preload" href="assets/css/app.css" as="style">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link rel="stylesheet" href="assets/css/project.css">
+  <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
+    integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+  <header class="header">
+    <div class="header-wrapper">
+      <div class="header-logo"><img src="assets/img/logo-DW.webp" alt="Dumbways Logo"></div>
+      <div class="header-nav">
+        <ul class="header-nav__left">
+          <li>
+            <a href="index.html" class="link">Home</a>
+          </li>
+          <li>
+            <a href="project.html" class="link link-active">My Project</a>
+          </li>
+          <!-- <li>
+            <a href="blog.html" class="link">Blog</a>
+          </li> -->
+        </ul>
+        <div class="header-nav__right">
+          <a href="contact.html" class="btn btn-primary">Contact Me</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="bg-wrapper">
+    <!-- Input Data -->
+    <section class="container-sm">
+      <!-- <div class="card container"> -->
+      <div class="card">
+        <div class="card-wrapper ">
+          <h1 class="card-title">Add New Blog</h1>
+          <div class="card-body">
+            <form onsubmit="getData(event)" class="form">
+              <label class="form-input">Project Name
+                <input id="project-name" type="text" class="input" value="Project Name">
+              </label>
+              <div class="form-group">
+                <label class="form-input">Start Date
+                  <input id="project-start" type="date" class="input"></label>
+                <label class="form-input">End Date
+                  <input id="project-end" type="date" class="input"></label>
+              </div>
+              <label class="form-input">Description
+                <textarea id="project-description" cols="30" rows="8" class="textarea">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                </textarea>
+              </label>
+              <div class="form-group__choice">
+                <h4 style="width: 100%; font-weight: 500;">Technologies</h4>
+                <label class="checkbox-label">
+                  <input type="checkbox" class="checkbox-input" name="project-tech" id="nodejs" value="nodejs">
+                  <span class="checkbox-tile">
+                    <img src="assets/img/icon/logo-nodejs.svg" alt="Item Icon">
+                    <span>Node JS</span>
+                  </span>
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" class="checkbox-input" name="project-tech" id="nextjs" value="nextjs">
+                  <span class="checkbox-tile">
+                    <img src="assets/img/icon/logo-nextjs.svg" alt="Item Icon">
+                    <span>Next JS</span>
+                  </span>
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" class="checkbox-input" name="project-tech" id="reactjs" value="reactjs">
+                  <span class="checkbox-tile">
+                    <img src="assets/img/icon/logo-reactjs.svg" alt="Item Icon">
+                    <span>React JS</span>
+                  </span>
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" class="checkbox-input" name="project-tech" id="typescript" value="typescript">
+                  <span class="checkbox-tile">
+                    <img src="assets/img/icon/logo-typescript.svg" alt="Item Icon">
+                    <span>Typescript</span>
+                  </span>
+                </label>
+              </div>
+              <label class="form-input">Upload Image
+                <input id="project-image" type="file" class="input">
+              </label>
+              <div class="form-submit">
+                <button class="btn btn-primary btn-lg rounded-full">Submit</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="container" style="margin-top: 10rem; margin-bottom: 2rem;">
+      <h1 class="card-title" style="text-align: center; color: white; width: 100%;">My Project</h1>
+      <div id="list-content">
+
+        <div class="card card-post" id="post-00">
+          <!-- Content Will Apear Here -->
+          <img src="https://source.unsplash.com/640x480?programming" alt="img-post">
+          <div class="">
+            <div class="card-head">
+              <h1 class="card-title__sm btn-link"><a href="detail-project.html">Sample Project</a></h1>
+              <span class="card-subtitle__sm">Duration 1 Month</span>
+            </div>
+            <div class="" style="height:100%;">
+              <p class="card-desc_sm">Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita nobis totam, ex
+                omnis non nesciunt deserunt deleniti, quasi repellendus, iusto reiciendis consequuntur laborum dolor
+                beatae? Aliquam sit delectus debitis exercitationem!</p>
+              <ul class="list-items-sm">
+                <li>
+                  <img src="assets/img/icon/logo-reactjs.svg" alt="Item Icon">
+                </li>
+                <li>
+                  <img src="assets/img/icon/logo-nodejs.svg" alt="Item Icon">
+                </li>
+                <li>
+                  <img src="assets/img/icon/logo-nextjs.svg" alt="Item Icon">
+                </li>
+              </ul>
+            </div>
+            <div class="btn-group" style="margin-top:24px;">
+              <a class="btn btn-primary btn-sm btn-full" href="detail-project.html">Edit</a>
+              <span onclick="document.getElementById('post-00').remove();"
+                class="btn btn-danger btn-sm btn-full">Delete</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </div>
+
+  <footer class="">
+    <div>
+      <p style="text-align: center;">Made with ❤️ by <i>Hyujisf</i></p>
+    </div>
+  </footer>
+
+  <script src="assets/js/project.js"></script>
+</body>
+
+</html>
