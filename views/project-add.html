@@ -5,10 +5,10 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Batch 43 - Day 6 | Wahyudi Chrisdianto</title>
-  <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
-  <link rel="preload" href="assets/css/app.css" as="style">
-  <link rel="stylesheet" href="assets/css/app.css">
+  <title>{{.Title}}</title>
+  <link rel="shortcut icon" href="/public/assets/favicon.ico" type="image/x-icon">
+  <link rel="preload" href="/public/assets/css/app.css" as="style">
+  <link rel="stylesheet" href="/public/assets/css/app.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
     integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -22,8 +22,8 @@
 <body>
   <nav class="fixed-top shadow navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid container">
-      <a class="navbar-brand" href="/index.html">
-        <img src="assets/img/logo-DW.webp" width="64" alt="Dumbways Logo" loading="lazy">
+      <a class="navbar-brand" href="/">
+        <img src="/public/assets/img/logo-DW.webp" width="64" alt="Dumbways Logo" loading="lazy">
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,14 +32,14 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="index.html">Home</a>
+            <a class="nav-link active" aria-current="page" href="/">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="project.html">Add Project</a>
+            <a class="nav-link" href="/project-add">Add Project</a>
           </li>
         </ul>
         <div class="d-flex">
-          <a class="btn btn-outline-primary" href="contact.html">Contact Me</a>
+          <a class="btn btn-outline-primary" href="/contact">Contact Me</a>
         </div>
       </div>
     </div>
@@ -77,28 +77,28 @@
             <label class="checkbox-label">
               <input type="checkbox" class="checkbox-input" name="project-tech" id="nodejs" value="nodejs">
               <span class="checkbox-tile">
-                <img src="assets/img/icon/logo-nodejs.svg" alt="Item Icon">
+                <img src="/public/assets/img/icon/logo-nodejs.svg" alt="Item Icon">
                 <span>Node JS</span>
               </span>
             </label>
             <label class="checkbox-label">
               <input type="checkbox" class="checkbox-input" name="project-tech" id="nextjs" value="nextjs">
               <span class="checkbox-tile">
-                <img src="assets/img/icon/logo-nextjs.svg" alt="Item Icon">
+                <img src="/public/assets/img/icon/logo-nextjs.svg" alt="Item Icon">
                 <span>Next JS</span>
               </span>
             </label>
             <label class="checkbox-label">
               <input type="checkbox" class="checkbox-input" name="project-tech" id="reactjs" value="reactjs">
               <span class="checkbox-tile">
-                <img src="assets/img/icon/logo-reactjs.svg" alt="Item Icon">
+                <img src="/public/assets/img/icon/logo-reactjs.svg" alt="Item Icon">
                 <span>React JS</span>
               </span>
             </label>
             <label class="checkbox-label">
               <input type="checkbox" class="checkbox-input" name="project-tech" id="typescript" value="typescript">
               <span class="checkbox-tile">
-                <img src="assets/img/icon/logo-typescript.svg" alt="Item Icon">
+                <img src="/public/assets/img/icon/logo-typescript.svg" alt="Item Icon">
                 <span>Typescript</span>
               </span>
             </label>
@@ -122,7 +122,7 @@
           class="fw-semibold "><i class="fa-brands fa-github"></i> Hyujisf</span></a>
     </div>
   </footer>
-  <script src="assets/js/project.js"></script>
+  <script src="/public/assets/js/project.js"></script>
 </body>
 
 </html>
