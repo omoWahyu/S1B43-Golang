@@ -3,14 +3,16 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
 
 var Data = map[string]interface{}{
 	"Title":   "Personal web",
-	"IsLogin": true,
+	"IsLogin": false,
 }
 
 // Array of objects
@@ -22,25 +24,25 @@ var Data = map[string]interface{}{
 // 	lebar() float64
 // }
 
-type Project struct {
-	Title        string
-	date_start   string
-	date_end     string
-	Description  string
-	technologies []string
-	duration     string
-}
+// type Project struct {
+// 	Title        string
+// 	date_start   string
+// 	date_end     string
+// 	Description  string
+// 	technologies []string
+// 	duration     string
+// }
 
-var Projects = []Project{
-	{
-		Title:        "Dumbways Mobile App 2022",
-		date_start:   "1 Des 2022",
-		date_end:     "9 Des 2022",
-		Description:  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-		technologies: []string{"nodejs", "nextjs", "reactjs", "Typescript"},
-		duration:     " 1 Minggu",
-	},
-}
+// var Projects = []Project{
+// 	{
+// 		Title:        "Dumbways Mobile App 2022",
+// 		date_start:   "1 Des 2022",
+// 		date_end:     "9 Des 2022",
+// 		Description:  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+// 		technologies: []string{"nodejs", "nextjs", "reactjs", "Typescript"},
+// 		duration:     " 1 Minggu",
+// 	},
+// }
 
 func main() {
 	route := mux.NewRouter()
@@ -48,9 +50,10 @@ func main() {
 	route.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
 
 	route.HandleFunc("/", index).Methods("GET")
-	route.HandleFunc("/project", projectAdd).Methods("GET")
+	route.HandleFunc("/project", projectForm).Methods("GET")
+	route.HandleFunc("/project/{id}", projectDetail).Methods("GET")
+	route.HandleFunc("/project", projectAdd).Methods("POST")
 	route.HandleFunc("/contact", contactMe).Methods("GET")
-	route.HandleFunc("/project-detail", projectDetail).Methods("GET")
 
 	// port := 5000
 	fmt.Println("Server running at localhost:5000")
@@ -68,16 +71,11 @@ func index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respData := map[string]interface{}{
-		"Data":     Data,
-		"Projects": Projects,
-	}
-
 	w.WriteHeader(http.StatusOK)
-	tmpl.Execute(w, respData)
+	tmpl.Execute(w, Data)
 }
 
-func projectAdd(w http.ResponseWriter, r *http.Request) {
+func projectForm(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	var tmpl, err = template.ParseFiles("views/project-add.html")
@@ -94,6 +92,8 @@ func projectAdd(w http.ResponseWriter, r *http.Request) {
 func projectDetail(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+
 	var tmpl, err = template.ParseFiles("views/project-detail.html")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -101,8 +101,29 @@ func projectDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	respData := map[string]interface{}{
+		"Data": Data,
+		"Id":   id,
+		// "Projects": Projects,
+	}
+
 	w.WriteHeader(http.StatusOK)
-	tmpl.Execute(w, Data)
+	tmpl.Execute(w, respData)
+}
+
+func projectAdd(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		log.Fatal(err)
+	}
+	// techstack := r.Form["project-tech"]
+	fmt.Println("Name :" + r.PostForm.Get("project-name"))
+	fmt.Println("Start :" + r.PostForm.Get("project-start"))
+	fmt.Println("End :" + r.PostForm.Get("project-end"))
+	fmt.Println("Description :" + r.PostForm.Get("project-description"))
+	fmt.Println("Tech Stack :", r.Form["project-tech"])
+
+	http.Redirect(w, r, "/project", http.StatusMovedPermanently)
 }
 
 func contactMe(w http.ResponseWriter, r *http.Request) {

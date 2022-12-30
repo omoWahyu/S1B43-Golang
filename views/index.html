@@ -33,10 +33,10 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="/">Home</a>
+            <a class="nav-link active" href="/">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/project-add">Add Project</a>
+            <a class="nav-link" href="/project">Add Project</a>
           </li>
         </ul>
         <div class="d-flex">
@@ -51,7 +51,7 @@
     <div class="mx-auto container px-3" style="padding-top: 5rem;min-height: 100vh;">
       <div class="card rounded-4 shadow p-4">
         <div class="row gap">
-          <div class="col-md-8 p-4">
+          <div class="col-lg-8 p-4">
             <h1 class="card-title fw-bold mb-3">Hi Welcome to my hut</h1>
             <p class="card-text" style="text-align: justify;">
 
@@ -117,7 +117,7 @@
               </a>
             </div>
           </div>
-          <div class="col-md-4 p-4">
+          <div class="col-lg-4 p-4">
             <!-- Profile Card -->
             <div class="text-center">
               <div class="w-100 rounded-4 overflow-hidden" style="height: 450px;">
@@ -126,7 +126,7 @@
               </div>
               <div class="p-3">
                 <b class="fs-5">Wahyudi Chrisdianto</b>
-                <p>Fullstack Developer</p>
+                <p class="m-0">Fullstack Developer</p>
               </div>
             </div>
           </div>
@@ -136,9 +136,9 @@
     <!-- </section>
 
   <section class="py-5"> -->
-    <div class="container py-5">
+    <div class="container py-5 mt-5">
       <h1 class="text-center text-white fw-bold mb-5">MY PROJECT</h1>
-      <div class="row row-cols-1 row-cols-md-3 pt-5 row-gap-4">
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 pt-5 row-gap-4">
         <div class="col">
           <div class="card rounded-4">
             <div class="overflow-hidden mx-3 mt-3 rounded-3">
@@ -146,7 +146,7 @@
                 src="https://source.unsplash.com/800x480?programming">
             </div>
             <div class="card-body">
-              <a href="/project-detail">
+              <a href="/project/1">
                 <h5 class="card-title fw-semibold">Card Title</h5>
               </a>
               <p class="card-text" style="text-align: justify;">
@@ -167,114 +167,11 @@
               </ul>
 
               <div class="d-flex w-100 gap-2" style="margin-top:24px;">
-                <a class="btn btn-warning btn-sm w-100" href="/project-detail">Edit</a>
+                {{if.IsLogin}}
+                <a class="btn btn-warning btn-sm w-100" href="/project/1">Edit</a>
                 <span onclick="document.getElementById('post-00').remove();"
                   class="btn btn-danger btn-sm w-100">Delete</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card rounded-4">
-            <div class="overflow-hidden mx-3 mt-3 rounded-3">
-              <img class="card-img-top object-fit-cover w-100" alt="img-post"
-                src="https://source.unsplash.com/800x480?programming">
-            </div>
-            <div class="card-body">
-              <a href="/project-detail">
-                <h5 class="card-title fw-semibold">Card Title</h5>
-              </a>
-              <p class="card-text" style="text-align: justify;">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae quo mollitia asperiores aut repudiandae,
-                consectetur eaque in ullam. Hic doloribus officiis velit veniam! Aspernatur unde deleniti numquam
-                quidem, eaque enim.
-              </p>
-              <ul class="list-items-sm">
-                <li>
-                  <img src="/public/assets/img/icon/logo-reactjs.svg" alt="Item Icon">
-                </li>
-                <li>
-                  <img src="/public/assets/img/icon/logo-nodejs.svg" alt="Item Icon">
-                </li>
-                <li>
-                  <img src="/public/assets/img/icon/logo-nextjs.svg" alt="Item Icon">
-                </li>
-              </ul>
-
-              <div class="d-flex w-100 gap-2" style="margin-top:24px;">
-                <a class="btn btn-warning btn-sm w-100" href="/project-detail">Edit</a>
-                <span onclick="document.getElementById('post-00').remove();"
-                  class="btn btn-danger btn-sm w-100">Delete</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card rounded-4">
-            <div class="overflow-hidden mx-3 mt-3 rounded-3">
-              <img class="card-img-top object-fit-cover w-100" alt="img-post"
-                src="https://source.unsplash.com/800x480?programming">
-            </div>
-            <div class="card-body">
-              <a href="/project-detail">
-                <h5 class="card-title fw-semibold">Card Title</h5>
-              </a>
-              <p class="card-text" style="text-align: justify;">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae quo mollitia asperiores aut repudiandae,
-                consectetur eaque in ullam. Hic doloribus officiis velit veniam! Aspernatur unde deleniti numquam
-                quidem, eaque enim.
-              </p>
-              <ul class="list-items-sm">
-                <li>
-                  <img src="/public/assets/img/icon/logo-reactjs.svg" alt="Item Icon">
-                </li>
-                <li>
-                  <img src="/public/assets/img/icon/logo-nodejs.svg" alt="Item Icon">
-                </li>
-                <li>
-                  <img src="/public/assets/img/icon/logo-nextjs.svg" alt="Item Icon">
-                </li>
-              </ul>
-
-              <div class="d-flex w-100 gap-2" style="margin-top:24px;">
-                <a class="btn btn-warning btn-sm w-100" href="/project-detail">Edit</a>
-                <span onclick="document.getElementById('post-00').remove();"
-                  class="btn btn-danger btn-sm w-100">Delete</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card rounded-4">
-            <div class="overflow-hidden mx-3 mt-3 rounded-3">
-              <img class="card-img-top object-fit-cover w-100" alt="img-post"
-                src="https://source.unsplash.com/800x480?programming">
-            </div>
-            <div class="card-body">
-              <a href="/project-detail">
-                <h5 class="card-title fw-semibold">Card Title</h5>
-              </a>
-              <p class="card-text" style="text-align: justify;">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae quo mollitia asperiores aut repudiandae,
-                consectetur eaque in ullam. Hic doloribus officiis velit veniam! Aspernatur unde deleniti numquam
-                quidem, eaque enim.
-              </p>
-              <ul class="list-items-sm">
-                <li>
-                  <img src="/public/assets/img/icon/logo-reactjs.svg" alt="Item Icon">
-                </li>
-                <li>
-                  <img src="/public/assets/img/icon/logo-nodejs.svg" alt="Item Icon">
-                </li>
-                <li>
-                  <img src="/public/assets/img/icon/logo-nextjs.svg" alt="Item Icon">
-                </li>
-              </ul>
-
-              <div class="d-flex w-100 gap-2" style="margin-top:24px;">
-                <a class="btn btn-warning btn-sm w-100" href="/project-detail">Edit</a>
-                <span onclick="document.getElementById('post-00').remove();"
-                  class="btn btn-danger btn-sm w-100">Delete</span>
+                {{end}}
               </div>
             </div>
           </div>
