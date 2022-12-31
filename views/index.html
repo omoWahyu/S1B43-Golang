@@ -40,7 +40,7 @@
           </li>
         </ul>
         <div class="d-flex">
-          <a class="btn btn-outline-primary" href="/contact">Contact Me</a>
+          <a class="btn btn-outline-danger px-4 fw-semibold" href="/contact">Contact Me</a>
         </div>
       </div>
     </div>
@@ -75,7 +75,7 @@
 
             <div class="" style="margin: 24px 0;">
               <!-- Contact Btn -->
-              <a href="mailto:wahyudi.chrisdianto@gmail.com" class="btn btn-primary">Contact</a>
+              <a href="mailto:wahyudi.chrisdianto@gmail.com" class="btn btn-danger px-4 fx-semibold">Contact</a>
 
               <!-- Download CV Btn -->
               <!-- add 'download' atribute if u want to make download when clicked -->
@@ -139,6 +139,7 @@
     <div class="container py-5 mt-5">
       <h1 class="text-center text-white fw-bold mb-5">MY PROJECT</h1>
       <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 pt-5 row-gap-4">
+        {{range $index, $data := .Projects }}
         <div class="col">
           <div class="card rounded-4">
             <div class="overflow-hidden mx-3 mt-3 rounded-3">
@@ -146,36 +147,34 @@
                 src="https://source.unsplash.com/800x480?programming">
             </div>
             <div class="card-body">
-              <a href="/project/1">
-                <h5 class="card-title fw-semibold">Card Title</h5>
-              </a>
+              <h5 class="card-title fw-semibold">
+                <a class="" href="/project/1" style="text-decoration: none;">
+                  {{$data.Name}}
+                </a>
+              </h5>
+              <span>duration: {{$data.Duration}}</span>
               <p class="card-text" style="text-align: justify;">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae quo mollitia asperiores aut repudiandae,
-                consectetur eaque in ullam. Hic doloribus officiis velit veniam! Aspernatur unde deleniti numquam
-                quidem, eaque enim.
+                {{$data.Description}}
               </p>
-              <ul class="list-items-sm">
+              <ul class="d-flex gap-2" style=" padding: 0;">
+                {{range $index, $data := $data.Tech }}
+
                 <li>
-                  <img src="/public/assets/img/icon/logo-reactjs.svg" alt="Item Icon">
+                  <img src="/public/assets/img/icon/logo-{{$data}}.svg" alt="Item Icon" width="30">
                 </li>
-                <li>
-                  <img src="/public/assets/img/icon/logo-nodejs.svg" alt="Item Icon">
-                </li>
-                <li>
-                  <img src="/public/assets/img/icon/logo-nextjs.svg" alt="Item Icon">
-                </li>
+                {{end}}
+
               </ul>
 
               <div class="d-flex w-100 gap-2" style="margin-top:24px;">
-                {{if.IsLogin}}
                 <a class="btn btn-warning btn-sm w-100" href="/project/1">Edit</a>
                 <span onclick="document.getElementById('post-00').remove();"
                   class="btn btn-danger btn-sm w-100">Delete</span>
-                {{end}}
               </div>
             </div>
           </div>
         </div>
+        {{end}}
       </div>
     </div>
   </section>

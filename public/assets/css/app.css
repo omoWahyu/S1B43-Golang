@@ -7,6 +7,10 @@
   font-family: 'Poppins', sans-serif;
 }
 
+ul li {
+  list-style: none;
+}
+
 :root {
   /* Colors */
   --primary: #ffa33c;

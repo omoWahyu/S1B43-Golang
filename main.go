@@ -24,25 +24,25 @@ var Data = map[string]interface{}{
 // 	lebar() float64
 // }
 
-// type Project struct {
-// 	Title        string
-// 	date_start   string
-// 	date_end     string
-// 	Description  string
-// 	technologies []string
-// 	duration     string
-// }
+type Project struct {
+	Name        string
+	Start       string
+	End         string
+	Description string
+	Tech        []string
+	Duration    string
+}
 
-// var Projects = []Project{
-// 	{
-// 		Title:        "Dumbways Mobile App 2022",
-// 		date_start:   "1 Des 2022",
-// 		date_end:     "9 Des 2022",
-// 		Description:  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-// 		technologies: []string{"nodejs", "nextjs", "reactjs", "Typescript"},
-// 		duration:     " 1 Minggu",
-// 	},
-// }
+var Projects = []Project{
+	{
+		Name:        "Dumbways Mobile App 2022",
+		Start:       "1 Des 2022",
+		End:         "9 Des 2022",
+		Duration:    " 1 Minggu",
+		Description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+		Tech:        []string{"nodejs", "nextjs", "reactjs", "typescript"},
+	},
+}
 
 func main() {
 	route := mux.NewRouter()
@@ -71,8 +71,13 @@ func index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	respData := map[string]interface{}{
+		"Data":     Data,
+		"Projects": Projects,
+	}
+
 	w.WriteHeader(http.StatusOK)
-	tmpl.Execute(w, Data)
+	tmpl.Execute(w, respData)
 }
 
 func projectForm(w http.ResponseWriter, r *http.Request) {
@@ -116,6 +121,7 @@ func projectAdd(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	// techstack := r.Form["project-tech"]
 	fmt.Println("Name :" + r.PostForm.Get("project-name"))
 	fmt.Println("Start :" + r.PostForm.Get("project-start"))
