@@ -157,10 +157,10 @@
                 {{$data.Description}}
               </p>
               <ul class="d-flex gap-2" style=" padding: 0;">
-                {{range $index, $data := $data.Tech }}
+                {{range $index, $tech := $data.Tech }}
 
                 <li>
-                  <img src="/public/assets/img/icon/logo-{{$data}}.svg" alt="Item Icon" width="30">
+                  <img src="/public/assets/img/icon/logo-{{$tech}}.svg" alt="Item Icon" width="30">
                 </li>
                 {{end}}
 
