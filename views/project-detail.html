@@ -49,50 +49,44 @@
   <section class="my-bg-gradient py-5">
     <div class="mx-auto container px-3" style="padding-top: 5rem;min-height: 100vh;">
       <div class="card rounded-4 shadow p-4">
+        <h1 class="card-title">{{.Name}}</h1>
         <div class="row gap">
-          <div class="col-md-8 p-4">
+          <div class="col-lg-8 p-4">
             <div class="" style="height: 480px; border-radius: 16px; overflow: hidden;">
               <img style="width: 100%; height:100%; object-fit: cover;"
                 src="https://source.unsplash.com/640x480?programming" alt="Unsplash Image">
             </div>
           </div>
-          <div class="col-md-4 p-4">
+          <div class="col-lg-4 p-4">
             <div class="top">
               <h2>Duration</h2>
               <ul class="list-dates">
-                <li><i class="fa-solid fa-calendar-days"></i> 12 Jan 2021 - 11 Feb 2021</li>
-                <li><i class="fa-solid fa-clock"></i> 1 Month</li>
+                <li><i class="fa-solid fa-calendar-days"></i> {{.Start}} - {{.End}}</li>
+                <li><i class="fa-solid fa-clock"></i> {{.Duration}}</li>
               </ul>
             </div>
             <div class="bottom">
               <h2>Technologies</h2>
               <ul class="list-items">
-                <li><img src="/public/assets/img/icon/logo-nodejs.svg" alt="Item Icon"> Node JS</li>
-                <li><img src="/public/assets/img/icon/logo-nextjs.svg" alt="Item Icon"> Next JS</li>
-                <li><img src="/public/assets/img/icon/logo-reactjs.svg" alt="Item Icon"> React JS</li>
-                <li><img src="/public/assets/img/icon/logo-typescript.svg" alt="Item Icon"> Typescript</li>
+                {{range $index, $listTech := .Tech}}
+                <li><img src="/public/assets/img/icon/logo-{{$listTech}}.svg" alt="Item Icon">
+                  {{if eq $listTech "nodejs"}}
+                  <span>Node JS</span>
+                  {{else if eq $listTech "reactjs"}}
+                  <span>React JS</span>
+                  {{else if eq $listTech "nextjs"}}
+                  <span>Next JS</span>
+                  {{else}}
+                  <span>Typescript</span>
+                  {{end}}
+                </li>
+                {{end}}
               </ul>
             </div>
           </div>
         </div>
         <p class="card-text p-3" style="text-align: justify;">
-
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-          incididunt ut labore et dolore magna aliqua. Sed elementum tempus egestas sed sed risus pretium quam
-          vulputate. Placerat duis ultricies lacus sed turpis tincidunt id aliquet. Mi sit amet mauris commodo
-          quis
-          imperdiet massa tincidunt. Ut aliquam purus sit amet luctus venenatis lectus magna fringilla. Neque
-          vitae
-          tempus quam pellentesque. Lorem dolor sed viverra ipsum nunc aliquet bibendum. Quam nulla porttitor
-          massa
-          id
-          neque aliquam. Est ullamcorper eget nulla facilisi etiam dignissim. Nulla posuere sollicitudin aliquam
-          ultrices sagittis orci
-          a. Feugiat nisl pretium fusce id velit ut tortor. Nec feugiat in fermentum posuere urna nec tincidunt
-          praesent. Amet mauris commodo quis imperdiet massa tincidunt. Amet porttitor eget dolor morbi non arcu
-          risus
-          quis. Porttitor leo a diam sollicitudin tempor id eu. A diam maecenas sed enim ut sem viverra aliquet
-          eget.
+          {{.Description}}
         </p>
       </div>
     </div>

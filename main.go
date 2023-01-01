@@ -26,6 +26,7 @@ var Data = map[string]interface{}{
 // }
 
 type dataProject struct {
+	ID          int
 	Name        string
 	Start       string
 	End         string
@@ -52,8 +53,11 @@ func main() {
 
 	route.HandleFunc("/", index).Methods("GET")
 	route.HandleFunc("/project", project).Methods("GET")
-	route.HandleFunc("/project/{id}", projectDetail).Methods("GET")
 	route.HandleFunc("/project", projectPost).Methods("POST")
+	route.HandleFunc("/project/{id}", projectDetail).Methods("GET")
+	route.HandleFunc("/project/d/{id}", projectDelete).Methods("GET")
+	route.HandleFunc("/project/e/{id}", projectEdit).Methods("GET")
+	route.HandleFunc("/project/e/{id}", projectEditPost).Methods("POST")
 	route.HandleFunc("/contact", contactMe).Methods("GET")
 
 	// port := 5000
@@ -84,21 +88,28 @@ func index(w http.ResponseWriter, r *http.Request) {
 func project(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	var tmpl, err = template.ParseFiles("views/project-add.html")
+	var tmpl, err = template.ParseFiles("views/project-form.html")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("message :" + err.Error()))
 		return
 	}
 
+	dataPage := map[string]interface{}{
+		"Title": "ADD MY PROJECT",
+		"url":   "/project/",
+	}
+
+	DataDetail := map[string]interface{}{
+		"Data": Data,
+		"Page": dataPage,
+	}
 	w.WriteHeader(http.StatusOK)
-	tmpl.Execute(w, Data)
+	tmpl.Execute(w, DataDetail)
 }
 
 func projectDetail(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
 	var tmpl, err = template.ParseFiles("views/project-detail.html")
 	if err != nil {
@@ -107,14 +118,33 @@ func projectDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respData := map[string]interface{}{
-		"Data": Data,
-		"Id":   id,
-		// "Projects": Projects,
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("message :" + err.Error()))
+		return
+	}
+
+	// Project := dataProject
+	var Project dataProject
+	for _, data := range Projects {
+		if data.ID == id {
+			Project = data
+			break
+		}
+	}
+
+	DataDetail := map[string]interface{}{
+		"Data":    Data,
+		"Project": Project,
 	}
 
 	w.WriteHeader(http.StatusOK)
-	tmpl.Execute(w, respData)
+	tmpl.Execute(w, DataDetail)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func projectPost(w http.ResponseWriter, r *http.Request) {
@@ -123,28 +153,23 @@ func projectPost(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	// techstack := r.Form["project-tech"]
-	// fmt.Println("Name :" + r.PostForm.Get("project-name"))
-	// fmt.Println("Start :" + r.PostForm.Get("project-start"))
-	// fmt.Println("End :" + r.PostForm.Get("project-end"))
-	// fmt.Println("Description :" + r.PostForm.Get("project-description"))
-	// fmt.Println("Tech Stack :", r.Form["project-tech"])
-
-	Name := r.PostForm.Get("project-name")
-	Start := r.PostForm.Get("project-start")
-	End := r.PostForm.Get("project-end")
-	Description := r.PostForm.Get("project-description")
-	Tech := r.Form["project-tech"]
-	Duration := getDuration(Start, End)
+	ProjName := r.PostForm.Get("project-name")
+	ProjStart := r.PostForm.Get("project-start")
+	ProjEnd := r.PostForm.Get("project-end")
+	ProjDescription := r.PostForm.Get("project-description")
+	ProjTech := r.Form["project-tech"]
+	ProjDuration := getDuration(ProjStart, ProjEnd)
 
 	var Project = dataProject{
-		Name,
-		Start,
-		End,
-		Description,
-		Tech,
-		Duration,
+		Name:        ProjName,
+		Start:       ProjStart,
+		End:         ProjEnd,
+		Description: ProjDescription,
+		Tech:        ProjTech,
+		Duration:    ProjDuration,
 	}
+
+	fmt.Println("================================")
 
 	fmt.Println("Project Name : ", Project.Name)
 	fmt.Println("Start Date   : ", Project.Start)
@@ -156,6 +181,110 @@ func projectPost(w http.ResponseWriter, r *http.Request) {
 
 	Projects = append(Projects, Project)
 	http.Redirect(w, r, "/project", http.StatusMovedPermanently)
+}
+
+func projectEdit(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	var tmpl, err = template.ParseFiles("views/project-form.html")
+
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("message :" + err.Error()))
+		return
+	}
+
+	// Project := dataProject
+	var Project dataProject
+	for _, data := range Projects {
+		if data.ID == id {
+			Project = data
+			break
+		}
+	}
+
+	dataPage := map[string]interface{}{
+		"Title": "EDIT MY PROJECT",
+		"url":   "/project/e/{{.Project.ID}}",
+	}
+
+	DataDetail := map[string]interface{}{
+		"Data":    Data,
+		"Page":    dataPage,
+		"Project": Project,
+	}
+	w.WriteHeader(http.StatusOK)
+	tmpl.Execute(w, DataDetail)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func projectDelete(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+
+	Projects = append(Projects[:id], Projects[id+1:]...)
+
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func projectEditPost(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ProjName := r.PostForm.Get("project-name")
+	ProjStart := r.PostForm.Get("project-start")
+	ProjEnd := r.PostForm.Get("project-end")
+	ProjDescription := r.PostForm.Get("project-description")
+	ProjTech := r.Form["project-tech"]
+	ProjDuration := getDuration(ProjStart, ProjEnd)
+
+	var Project = dataProject{
+		Name:        ProjName,
+		Start:       ProjStart,
+		End:         ProjEnd,
+		Description: ProjDescription,
+		Tech:        ProjTech,
+		Duration:    ProjDuration,
+	}
+
+	fmt.Println("================================")
+
+	fmt.Println("Project Name : ", Project.Name)
+	fmt.Println("Start Date   : ", Project.Start)
+	fmt.Println("End Date     : ", Project.End)
+	fmt.Println("Duration     : ", Project.Duration)
+	fmt.Println("Description  : ", Project.Description)
+	fmt.Println("Technologies : ", Project.Tech)
+	fmt.Println("================================")
+
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("message :" + err.Error()))
+		return
+	}
+
+	Projects[id] = Project
+	http.Redirect(w, r, "/project", http.StatusMovedPermanently)
+}
+
+func contactMe(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	var tmpl, err = template.ParseFiles("views/contact.html")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("message :" + err.Error()))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	tmpl.Execute(w, Data)
 }
 
 func getDuration(start, end string) string {
@@ -193,18 +322,4 @@ func getDuration(start, end string) string {
 		return "Duration - " + strconv.Itoa(dayRange) + " Day Left"
 	}
 	return "Duration - Today"
-}
-
-func contactMe(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	var tmpl, err = template.ParseFiles("views/contact.html")
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("message :" + err.Error()))
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	tmpl.Execute(w, Data)
 }
