@@ -169,8 +169,6 @@ func projectPost(w http.ResponseWriter, r *http.Request) {
 		Duration:    ProjDuration,
 	}
 
-	fmt.Println("================================")
-
 	fmt.Println("Project Name : ", Project.Name)
 	fmt.Println("Start Date   : ", Project.Start)
 	fmt.Println("End Date     : ", Project.End)
@@ -252,8 +250,6 @@ func projectEditPost(w http.ResponseWriter, r *http.Request) {
 		Duration:    ProjDuration,
 	}
 
-	fmt.Println("================================")
-
 	fmt.Println("Project Name : ", Project.Name)
 	fmt.Println("Start Date   : ", Project.Start)
 	fmt.Println("End Date     : ", Project.End)
@@ -270,7 +266,7 @@ func projectEditPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Projects[id] = Project
-	http.Redirect(w, r, "/project", http.StatusMovedPermanently)
+	http.Redirect(w, r, "/", http.StatusMovedPermanently)
 }
 
 func contactMe(w http.ResponseWriter, r *http.Request) {
@@ -290,29 +286,22 @@ func contactMe(w http.ResponseWriter, r *http.Request) {
 func getDuration(start, end string) string {
 
 	// Store Date with the Format
-	DataStart, err := time.Parse("2006-01-02", start)
-	if err != nil {
-		fmt.Println(err)
-		return ""
-	}
-	DataEnd, err := time.Parse("2006-01-02", end)
-	if err != nil {
-		fmt.Println(err)
-		return ""
-	}
+	DataStart, _ := time.Parse("2006-01-02", start)
+	DataEnd, _ := time.Parse("2006-01-02", end)
 
 	// Get data Range
 	DataRange := DataEnd.Sub(DataStart)
 
 	// Calc duration
+	yearRange := int(DataRange.Hours() / (12 * 30 * 24))
 	monthRange := int(DataRange.Hours() / (30 * 24))
 	weekRange := int(DataRange.Hours() / (7 * 24))
 	dayRange := int(DataRange.Hours() / 24)
 
-	if monthRange < 0 {
-		return ""
+	if yearRange != 0 {
+		return "Duration - " + strconv.Itoa(yearRange) + " Year"
 	}
-	if monthRange > 0 {
+	if monthRange != 0 {
 		return "Duration - " + strconv.Itoa(monthRange) + " Month"
 	}
 	if weekRange != 0 {
