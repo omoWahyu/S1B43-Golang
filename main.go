@@ -21,8 +21,8 @@ var Data = map[string]interface{}{
 type dataProject struct {
 	ID          int
 	Name        string
-	Start       string
-	End         string
+	Start       time.Time
+	End         time.Time
 	Description string
 	Tech        []string
 	Duration    string
@@ -65,7 +65,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 	var result []dataProject
 
-	rows, err := connection.Conn.Query(context.Background(), "SELECT * FROM tb_projects")
+	rows, err := connection.Conn.Query(context.Background(), "SELECT id,name,start_date, end_date,description FROM tb_projects")
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -74,7 +74,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var each = dataProject{}
 
-		var err = rows.Scan(&each.ID, &each.Name, &each.Start, &each.End, &each.Description, &each.Tech, &each.Image)
+		var err = rows.Scan(&each.ID, &each.Name, &each.Start, &each.End, &each.Description)
 		if err != nil {
 			fmt.Println(err.Error())
 			return
@@ -163,19 +163,19 @@ func projectPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ProjName := r.PostForm.Get("project-name")
-	ProjStart := r.PostForm.Get("project-start")
-	ProjEnd := r.PostForm.Get("project-end")
+	// ProjStart := r.PostForm.Get("project-start")
+	// ProjEnd := r.PostForm.Get("project-end")
 	ProjDescription := r.PostForm.Get("project-description")
 	ProjTech := r.Form["project-tech"]
-	ProjDuration := getDuration(ProjStart, ProjEnd)
+	// ProjDuration := getDuration(ProjStart, ProjEnd)
 
 	var Project = dataProject{
-		Name:        ProjName,
-		Start:       ProjStart,
-		End:         ProjEnd,
+		Name: ProjName,
+		// Start:       ProjStart,
+		// End:         ProjEnd,
 		Description: ProjDescription,
 		Tech:        ProjTech,
-		Duration:    ProjDuration,
+		// Duration:    ProjDuration,
 	}
 
 	fmt.Println("Project Name : ", Project.Name)
@@ -244,19 +244,19 @@ func projectEditPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ProjName := r.PostForm.Get("project-name")
-	ProjStart := r.PostForm.Get("project-start")
-	ProjEnd := r.PostForm.Get("project-end")
+	// ProjStart := r.PostForm.Get("project-start")
+	// ProjEnd := r.PostForm.Get("project-end")
 	ProjDescription := r.PostForm.Get("project-description")
 	ProjTech := r.Form["project-tech"]
-	ProjDuration := getDuration(ProjStart, ProjEnd)
+	// ProjDuration := getDuration(ProjStart, ProjEnd)
 
 	var Project = dataProject{
-		Name:        ProjName,
-		Start:       ProjStart,
-		End:         ProjEnd,
+		Name: ProjName,
+		// Start:       ProjStart,
+		// End:         ProjEnd,
 		Description: ProjDescription,
 		Tech:        ProjTech,
-		Duration:    ProjDuration,
+		// Duration:    ProjDuration,
 	}
 
 	fmt.Println("Project Name : ", Project.Name)
@@ -292,14 +292,14 @@ func contactMe(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, Data)
 }
 
-func getDuration(start, end string) string {
+func getDuration(start, end time.Time) string {
 
 	// Store Date with the Format
-	DataStart, _ := time.Parse("2006-01-02", start)
-	DataEnd, _ := time.Parse("2006-01-02", end)
+	// DataStart, _ := time.Parse("2006-01-02", start)
+	// DataEnd, _ := time.Parse("2006-01-02", end)
 
 	// Get data Range
-	DataRange := DataEnd.Sub(DataStart)
+	DataRange := end.Sub(start)
 
 	// Calc duration
 	yearRange := int(DataRange.Hours() / (12 * 30 * 24))
