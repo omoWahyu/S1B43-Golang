@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"data-modelling/connection"
 	"fmt"
 	"html/template"
 	"log"
@@ -13,17 +15,8 @@ import (
 
 var Data = map[string]interface{}{
 	"Title":   "Personal web",
-	"IsLogin": false,
+	"IsLogin": true,
 }
-
-// Array of objects
-// nama = []string{"Abel", "Dandi", "Ilham", "Jody"}
-
-// This is interface
-// type persegi interface {
-// 	panjang() float64
-// 	lebar() float64
-// }
 
 type dataProject struct {
 	ID          int
@@ -33,25 +26,19 @@ type dataProject struct {
 	Description string
 	Tech        []string
 	Duration    string
+	Image       string
 }
 
-var Projects = []dataProject{
-	// {
-	// 	Name:        "Dumbways Mobile App 2022",
-	// 	Start:       "1 Des 2022",
-	// 	End:         "9 Des 2022",
-	// 	Duration:    " 1 Minggu",
-	// 	Description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-	// 	Tech:        []string{"nodejs", "nextjs", "reactjs", "typescript"},
-	// },
-}
+var Projects = []dataProject{}
 
 func main() {
 	route := mux.NewRouter()
 
+	connection.DatabaseConnection()
+
 	route.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
 
-	route.HandleFunc("/", index).Methods("GET")
+	route.HandleFunc("/", home).Methods("GET").Name("home")
 	route.HandleFunc("/project", project).Methods("GET")
 	route.HandleFunc("/project", projectPost).Methods("POST")
 	route.HandleFunc("/project/{id}", projectDetail).Methods("GET")
@@ -65,7 +52,7 @@ func main() {
 	http.ListenAndServe("localhost:5000", route)
 }
 
-func index(w http.ResponseWriter, r *http.Request) {
+func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	// var tmpl, err = template.ParseFiles("views/index.html")
 
@@ -76,9 +63,31 @@ func index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var result []dataProject
+
+	rows, err := connection.Conn.Query(context.Background(), "SELECT * FROM tb_projects")
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	for rows.Next() {
+		var each = dataProject{}
+
+		var err = rows.Scan(&each.ID, &each.Name, &each.Start, &each.End, &each.Description, &each.Tech, &each.Image)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+
+		each.Duration = getDuration(each.Start, each.End)
+		result = append(result, each)
+	}
+
 	respData := map[string]interface{}{
 		"Data":     Data,
-		"Projects": Projects,
+		"Projects": result,
+		// "Projects": Projects,
 	}
 
 	w.WriteHeader(http.StatusOK)

@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{.Title}}</title>
+  <title>{{Data.Title}}</title>
   <link rel="shortcut icon" href="/public/assets/favicon.ico" type="image/x-icon">
   <link rel="preload" href="/public/assets/css/app.css" as="style">
   <link rel="stylesheet" href="/public/assets/css/app.css">
@@ -163,10 +163,12 @@
 
               </ul>
 
+              {{if $.Data.IsLogin}}
               <div class="d-flex w-100 gap-2" style="margin-top:24px;">
                 <a class="btn btn-warning btn-sm w-100" href="/project/e/{{$index}}">Edit</a>
                 <a class="btn btn-danger btn-sm w-100" href="/project/d/{{$index}}">Delete</a>
               </div>
+              {{end}}
             </div>
           </div>
         </div>
