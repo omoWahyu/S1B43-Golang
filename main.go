@@ -127,16 +127,16 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 	var result []structProject
 	for rows.Next() {
-		var each = structProject{}
+		var db = structProject{}
 
-		var err = rows.Scan(&each.ID, &each.Name, &each.Start, &each.End, &each.Description, &each.Tech, &each.Image)
+		var err = rows.Scan(&db.ID, &db.Name, &db.Start, &db.End, &db.Description, &db.Tech, &db.Image)
 		if err != nil {
 			fmt.Println(err.Error())
 			return
 		}
 
-		each.Duration = getDuration(each.Start, each.End)
-		result = append(result, each)
+		db.Duration = getDuration(db.Start, db.End)
+		result = append(result, db)
 	}
 
 	respData := map[string]interface{}{
@@ -493,12 +493,12 @@ func authLoginPost(w http.ResponseWriter, r *http.Request) {
 
 	email := r.PostForm.Get("email")
 	password := r.PostForm.Get("password")
-	user := structUser{}
+	db := structUser{}
 
 	// err = connection.Conn.QueryRow(context.Background(), "SELECT * FROM tb_users WHERE email=$1", email).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
 
 	err = connection.Conn.QueryRow(context.Background(), "SELECT id,name,email,password FROM tb_users WHERE email=$1", email).Scan(
-		&user.ID, &user.Name, &user.Email, &user.Password,
+		&db.ID, &db.Name, &db.Email, &db.Password,
 	)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -506,7 +506,7 @@ func authLoginPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(db.Password), []byte(password))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("message : " + err.Error()))
@@ -516,7 +516,7 @@ func authLoginPost(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "SESSION_ID")
 
 	session.Values["IsLogin"] = true
-	session.Values["Name"] = user.Name
+	session.Values["Name"] = db.Name
 	session.Options.MaxAge = 10800
 
 	session.AddFlash("Successfully Login!", "message")
