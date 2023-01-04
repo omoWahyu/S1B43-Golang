@@ -24,6 +24,7 @@ import (
 type MetaData struct {
 	Title     string
 	IsLogin   bool
+	IDUser    int
 	NameUser  string
 	FlashData string
 }
@@ -41,7 +42,9 @@ type structProject struct {
 	Tech        []string
 	Duration    string
 	Image       string
-	IsLogin     bool
+	ID_User     int
+	// Author  string
+	IsLogin bool
 }
 
 type structUser struct {
@@ -105,6 +108,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	} else {
 		Data.IsLogin = session.Values["IsLogin"].(bool)
 		Data.NameUser = session.Values["Name"].(string)
+		Data.IDUser = session.Values["ID"].(int)
 	}
 
 	fm := session.Flashes("message")
@@ -119,7 +123,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	}
 	Data.FlashData = strings.Join(flashes, "")
 
-	rows, err := connection.Conn.Query(context.Background(), "SELECT * FROM tb_projects")
+	rows, err := connection.Conn.Query(context.Background(), "SELECT * FROM tb_projects INNER JOIN tb_users ON tb_projects.id_user = tb_users.id where tb_projects.id_user =$1", Data.IDUser)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -129,9 +133,9 @@ func home(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var db = structProject{}
 
-		var err = rows.Scan(&db.ID, &db.Name, &db.Start, &db.End, &db.Description, &db.Tech, &db.Image)
+		var err = rows.Scan(&db.ID, &db.Name, &db.Start, &db.End, &db.Description, &db.Tech, &db.Image, &db.ID_User)
 		if err != nil {
-			fmt.Println(err.Error())
+			fmt.Println("home :" + err.Error())
 			return
 		}
 
@@ -142,7 +146,6 @@ func home(w http.ResponseWriter, r *http.Request) {
 	respData := map[string]interface{}{
 		"Data":     Data,
 		"Projects": result,
-		// "Projects": Projects,
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -198,6 +201,16 @@ func project(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("message :" + err.Error()))
 		return
+	}
+
+	var store = sessions.NewCookieStore([]byte("SESSION_ID"))
+	session, _ := store.Get(r, "SESSION_ID")
+
+	if session.Values["IsLogin"] != true {
+		Data.IsLogin = false
+	} else {
+		Data.IsLogin = session.Values["IsLogin"].(bool)
+		Data.NameUser = session.Values["Name"].(string)
 	}
 
 	dataPage := map[string]interface{}{
@@ -266,7 +279,7 @@ func projectDetail(w http.ResponseWriter, r *http.Request) {
 	// Penampung
 	db := structProject{}
 
-	err = connection.Conn.QueryRow(context.Background(), "SELECT * FROM tb_projects WHERE id=$1", id).Scan(&db.ID, &db.Name, &db.Start, &db.End, &db.Description, &db.Tech, &db.Image)
+	err = connection.Conn.QueryRow(context.Background(), "SELECT id, name, start_date, end_date, description, technologies, image  FROM tb_projects WHERE id=$1", id).Scan(&db.ID, &db.Name, &db.Start, &db.End, &db.Description, &db.Tech, &db.Image)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("message : " + err.Error()))
@@ -329,17 +342,11 @@ func projectEdit(w http.ResponseWriter, r *http.Request) {
 
 	// Project := structProject
 	db := structProject{}
-	err = connection.Conn.QueryRow(context.Background(), "SELECT id, name, start_date, end_date, description, technologies FROM tb_projects WHERE id=$1", id).Scan(&db.ID, &db.Name, &db.Start, &db.End, &db.Description, &db.Tech)
+	err = connection.Conn.QueryRow(context.Background(), "SELECT id, name, start_date, end_date, description, technologies, image FROM tb_projects WHERE id=$1", id).Scan(&db.ID, &db.Name, &db.Start, &db.End, &db.Description, &db.Tech)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
-
-	// Parsing data kedalam tipe time.Time
-	// timeStart, _ := time.Parse("2006-01-02", db.Start)
-	// timeEnd, _ := time.Parse("2006-01-02", db.End)
-	// formatStart := db.Start.Format("2006-01-02")
-	// formatEnd := db.End.Format("2006-01-02")
 
 	dataPage := map[string]interface{}{
 		"Title": "EDIT MY PROJECT",
@@ -517,8 +524,10 @@ func authLoginPost(w http.ResponseWriter, r *http.Request) {
 
 	session.Values["IsLogin"] = true
 	session.Values["Name"] = db.Name
+	session.Values["ID"] = db.ID
 	session.Options.MaxAge = 10800
 
+	println(db.ID)
 	session.AddFlash("Successfully Login!", "message")
 	session.Save(r, w)
 
