@@ -6,9 +6,9 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Batch 43 - Day 6 | Wahyudi Chrisdianto</title>
-  <link rel="shortcut icon" href="/public/assets/favicon.ico" type="image/x-icon">
-  <link rel="preload" href="/public/assets/css/app.css" as="style">
-  <link rel="stylesheet" href="/public/assets/css/app.css">
+  <link rel="shortcut icon" href="/public/favicon.ico" type="image/x-icon">
+  <link rel="preload" href="/public/css/app.css" as="style">
+  <link rel="stylesheet" href="/public/css/app.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
     integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -23,7 +23,7 @@
   <nav class="fixed-top shadow navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid container">
       <a class="navbar-brand" href="/">
-        <img src="/public/assets/img/logo-DW.webp" width="64" alt="Dumbways Logo" loading="lazy">
+        <img src="/public/img/logo-DW.webp" width="64" alt="Dumbways Logo" loading="lazy">
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,7 +69,7 @@
               <h2>Technologies</h2>
               <ul class="list-items">
                 {{range $index, $listTech := .Tech}}
-                <li><img src="/public/assets/img/icon/logo-{{$listTech}}.svg" alt="Item Icon">
+                <li><img src="/public/img/icon/logo-{{$listTech}}.svg" alt="Item Icon">
                   {{if eq $listTech "nodejs"}}
                   <span>Node JS</span>
                   {{else if eq $listTech "reactjs"}}

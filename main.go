@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"data-modelling/connection"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"project-web/connection"
 	"strconv"
 	"time"
 
@@ -18,7 +18,7 @@ var Data = map[string]interface{}{
 	"IsLogin": true,
 }
 
-type dataProject struct {
+type structProject struct {
 	ID          int
 	Name        string
 	Start       time.Time
@@ -29,7 +29,7 @@ type dataProject struct {
 	Image       string
 }
 
-var Projects = []dataProject{}
+var Projects = []structProject{}
 
 func main() {
 	route := mux.NewRouter()
@@ -63,18 +63,18 @@ func home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var result []dataProject
-
-	rows, err := connection.Conn.Query(context.Background(), "SELECT id,name,start_date, end_date,description FROM tb_projects")
+	var result []structProject
+	// rows, err := connection.Conn.Query(context.Background(), "SELECT id,name,start_date, end_date,description,technologies,image FROM tb_projects")
+	rows, err := connection.Conn.Query(context.Background(), "SELECT * FROM tb_projects")
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 
 	for rows.Next() {
-		var each = dataProject{}
+		var each = structProject{}
 
-		var err = rows.Scan(&each.ID, &each.Name, &each.Start, &each.End, &each.Description)
+		var err = rows.Scan(&each.ID, &each.Name, &each.Start, &each.End, &each.Description, &each.Tech, &each.Image)
 		if err != nil {
 			fmt.Println(err.Error())
 			return
@@ -120,6 +120,8 @@ func project(w http.ResponseWriter, r *http.Request) {
 func projectDetail(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+
 	var tmpl, err = template.ParseFiles("views/project-detail.html")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -127,15 +129,22 @@ func projectDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	// Penampung
+	ProjectDetail := structProject{}
+	err = connection.Conn.QueryRow(context.Background(), "SELECT * FROM tb_projects WHERE id=$1", id).Scan(&ProjectDetail.ID, &ProjectDetail.Name, &ProjectDetail.Start, &ProjectDetail.End, &ProjectDetail.Description, &ProjectDetail.Tech, &ProjectDetail.Image)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("message :" + err.Error()))
+		fmt.Println(err.Error())
 		return
 	}
 
-	// Project := dataProject
-	var Project dataProject
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("message : " + err.Error()))
+		return
+	}
+
+	// Project := structProject
+	var Project structProject
 	for _, data := range Projects {
 		if data.ID == id {
 			Project = data
@@ -163,30 +172,34 @@ func projectPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ProjName := r.PostForm.Get("project-name")
-	// ProjStart := r.PostForm.Get("project-start")
-	// ProjEnd := r.PostForm.Get("project-end")
+	ProjStart := r.PostForm.Get("project-start")
+	ProjEnd := r.PostForm.Get("project-end")
 	ProjDescription := r.PostForm.Get("project-description")
 	ProjTech := r.Form["project-tech"]
-	// ProjDuration := getDuration(ProjStart, ProjEnd)
 
-	var Project = dataProject{
-		Name: ProjName,
-		// Start:       ProjStart,
-		// End:         ProjEnd,
-		Description: ProjDescription,
-		Tech:        ProjTech,
-		// Duration:    ProjDuration,
+	_, err = connection.Conn.Exec(context.Background(), "INSERT INTO tb_projects(name, start_date, end_date, description, technologies, image) VALUES ($1, $2, $3, $4,$5, 'project.webp')", ProjName, ProjStart, ProjEnd, ProjDescription, ProjTech)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("message : " + err.Error()))
+		return
 	}
 
-	fmt.Println("Project Name : ", Project.Name)
-	fmt.Println("Start Date   : ", Project.Start)
-	fmt.Println("End Date     : ", Project.End)
-	fmt.Println("Duration     : ", Project.Duration)
-	fmt.Println("Description  : ", Project.Description)
-	fmt.Println("Technologies : ", Project.Tech)
+	// Parsing data kedalam tipe time.Time
+	timeStart, _ := time.Parse("2006-01-02", ProjStart)
+	timeEnd, _ := time.Parse("2006-01-02", ProjEnd)
+
+	// Hasilkan data Durasi berdasarkan variable yang telah diparsing
+	ProjDuration := getDuration(timeStart, timeEnd)
+
+	// Tampilkan Hasil inputnya
+	fmt.Println("Project Name : ", ProjName)
+	fmt.Println("Start Date   : ", ProjStart)
+	fmt.Println("End Date     : ", ProjEnd)
+	fmt.Println("Duration     : ", ProjDuration)
+	fmt.Println("Description  : ", ProjDescription)
+	fmt.Println("Technologies : ", ProjTech)
 	fmt.Println("================================")
 
-	Projects = append(Projects, Project)
 	http.Redirect(w, r, "/project", http.StatusMovedPermanently)
 }
 
@@ -194,33 +207,38 @@ func projectEdit(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	var tmpl, err = template.ParseFiles("views/project-form.html")
-
-	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("message :" + err.Error()))
 		return
 	}
 
-	// Project := dataProject
-	var Project dataProject
-	for _, data := range Projects {
-		if data.ID == id {
-			Project = data
-			break
-		}
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+
+	// Project := structProject
+	Project := structProject{}
+	err = connection.Conn.QueryRow(context.Background(), "SELECT id, name, start_date, end_date, description, technologies FROM tb_projects WHERE id=$1", id).Scan(&Project.ID, &Project.Name, &Project.Start, &Project.End, &Project.Description, &Project.Tech)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
 	}
+
+	// Parsing data kedalam tipe time.Time
+	// timeStart, _ := time.Parse("2006-01-02", Project.Start)
+	// timeEnd, _ := time.Parse("2006-01-02", Project.End)
+	// formatStart := Project.Start.Format("2006-01-02")
+	// formatEnd := Project.End.Format("2006-01-02")
 
 	dataPage := map[string]interface{}{
 		"Title": "EDIT MY PROJECT",
 		"url":   "/project/e/{{.Project.ID}}",
 	}
-
 	DataDetail := map[string]interface{}{
 		"Data":    Data,
 		"Page":    dataPage,
 		"Project": Project,
 	}
+
 	w.WriteHeader(http.StatusOK)
 	tmpl.Execute(w, DataDetail)
 	if err != nil {
@@ -230,11 +248,20 @@ func projectEdit(w http.ResponseWriter, r *http.Request) {
 }
 
 func projectDelete(w http.ResponseWriter, r *http.Request) {
+
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
-	Projects = append(Projects[:id], Projects[id+1:]...)
+	_, err := connection.Conn.Exec(context.Background(), "DELETE FROM tb_projects WHERE id=$1", id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("message : " + err.Error()))
+		return
+	}
 
-	http.Redirect(w, r, "/", http.StatusFound)
+	// fmt.Println(id)
+	// Projects = append(Projects[:id], Projects[id+1:]...)
+
+	http.Redirect(w, r, "/", http.StatusMovedPermanently)
 }
 
 func projectEditPost(w http.ResponseWriter, r *http.Request) {
@@ -244,37 +271,35 @@ func projectEditPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ProjName := r.PostForm.Get("project-name")
-	// ProjStart := r.PostForm.Get("project-start")
-	// ProjEnd := r.PostForm.Get("project-end")
+	ProjStart := r.PostForm.Get("project-start")
+	ProjEnd := r.PostForm.Get("project-end")
 	ProjDescription := r.PostForm.Get("project-description")
 	ProjTech := r.Form["project-tech"]
-	// ProjDuration := getDuration(ProjStart, ProjEnd)
 
-	var Project = dataProject{
-		Name: ProjName,
-		// Start:       ProjStart,
-		// End:         ProjEnd,
-		Description: ProjDescription,
-		Tech:        ProjTech,
-		// Duration:    ProjDuration,
-	}
+	// Parsing data kedalam tipe time.Time
+	timeStart, _ := time.Parse("2006-01-02", ProjStart)
+	timeEnd, _ := time.Parse("2006-01-02", ProjEnd)
 
-	fmt.Println("Project Name : ", Project.Name)
-	fmt.Println("Start Date   : ", Project.Start)
-	fmt.Println("End Date     : ", Project.End)
-	fmt.Println("Duration     : ", Project.Duration)
-	fmt.Println("Description  : ", Project.Description)
-	fmt.Println("Technologies : ", Project.Tech)
+	// Hasilkan data Durasi berdasarkan variable yang telah diparsing
+	// ProjDuration := getDuration(timeStart, timeEnd)
+
+	fmt.Println("Project Name : ", ProjName)
+	fmt.Println("Start Date   : ", ProjStart)
+	fmt.Println("End Date     : ", ProjEnd)
+	// fmt.Println("Duration     : ", ProjDuration)
+	fmt.Println("Description  : ", ProjDescription)
+	fmt.Println("Technologies : ", ProjTech)
 	fmt.Println("================================")
 
-	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+
+	_, err = connection.Conn.Exec(context.Background(), "UPDATE tb_projects SET name = $1, start_date = $2, end_date = $3, description = $4, technologies = $5 WHERE id=$6", ProjName, timeStart, timeEnd, ProjDescription, ProjTech, id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("message :" + err.Error()))
+		w.Write([]byte("message : " + err.Error()))
 		return
 	}
 
-	Projects[id] = Project
 	http.Redirect(w, r, "/", http.StatusMovedPermanently)
 }
 

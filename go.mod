@@ -1,4 +1,4 @@
-module data-modelling
+module project-web
 
 go 1.13
 
