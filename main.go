@@ -8,14 +8,28 @@ import (
 	"net/http"
 	"project-web/connection"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
+	"golang.org/x/crypto/bcrypt"
 )
 
-var Data = map[string]interface{}{
-	"Title":   "Personal web",
-	"IsLogin": true,
+// var Data = map[string]interface{}{
+// 	"Title":   "Personal web",
+// 	"IsLogin": true,
+// }
+
+type MetaData struct {
+	Title     string
+	IsLogin   bool
+	NameUser  string
+	FlashData string
+}
+
+var Data = MetaData{
+	Title: "Personal Web",
 }
 
 type structProject struct {
@@ -27,6 +41,14 @@ type structProject struct {
 	Tech        []string
 	Duration    string
 	Image       string
+	IsLogin     bool
+}
+
+type structUser struct {
+	ID       int
+	Name     string
+	Email    string
+	Password string
 }
 
 var Projects = []structProject{}
@@ -39,19 +61,31 @@ func main() {
 	route.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
 
 	route.HandleFunc("/", home).Methods("GET").Name("home")
+
+	// Contact
+	route.HandleFunc("/contact", contactMe).Methods("GET")
+
+	// Project
 	route.HandleFunc("/project", project).Methods("GET")
 	route.HandleFunc("/project", projectPost).Methods("POST")
 	route.HandleFunc("/project/{id}", projectDetail).Methods("GET")
 	route.HandleFunc("/project/d/{id}", projectDelete).Methods("GET")
 	route.HandleFunc("/project/e/{id}", projectEdit).Methods("GET")
 	route.HandleFunc("/project/e/{id}", projectEditPost).Methods("POST")
-	route.HandleFunc("/contact", contactMe).Methods("GET")
+
+	// Authentication
+	route.HandleFunc("/auth/login", authLogin).Methods("GET")
+	route.HandleFunc("/auth/login", authLoginPost).Methods("POST")
+	route.HandleFunc("/auth/register", authRegister).Methods("GET")
+	route.HandleFunc("/auth/register", authRegisterPost).Methods("POST")
+	route.HandleFunc("/auth/logout", authLogout).Methods("GET")
 
 	// port := 5000
-	fmt.Println("Server running at localhost:5000")
-	http.ListenAndServe("localhost:5000", route)
+	fmt.Println("Server running at localhost:5001")
+	http.ListenAndServe("localhost:5001", route)
 }
 
+// Index Section
 func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	// var tmpl, err = template.ParseFiles("views/index.html")
@@ -63,14 +97,35 @@ func home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var result []structProject
-	// rows, err := connection.Conn.Query(context.Background(), "SELECT id,name,start_date, end_date,description,technologies,image FROM tb_projects")
+	var store = sessions.NewCookieStore([]byte("SESSION_ID"))
+	session, _ := store.Get(r, "SESSION_ID")
+
+	if session.Values["IsLogin"] != true {
+		Data.IsLogin = false
+	} else {
+		Data.IsLogin = session.Values["IsLogin"].(bool)
+		Data.NameUser = session.Values["Name"].(string)
+	}
+
+	fm := session.Flashes("message")
+
+	var flashes []string
+	if len(fm) > 0 {
+		session.Save(r, w)
+
+		for _, fl := range fm {
+			flashes = append(flashes, fl.(string))
+		}
+	}
+	Data.FlashData = strings.Join(flashes, "")
+
 	rows, err := connection.Conn.Query(context.Background(), "SELECT * FROM tb_projects")
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 
+	var result []structProject
 	for rows.Next() {
 		var each = structProject{}
 
@@ -94,6 +149,47 @@ func home(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, respData)
 }
 
+// Contact Section
+func contactMe(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	var tmpl, err = template.ParseFiles("views/contact.html")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("message :" + err.Error()))
+		return
+	}
+
+	var store = sessions.NewCookieStore([]byte("SESSION_ID"))
+	session, _ := store.Get(r, "SESSION_ID")
+
+	if session.Values["IsLogin"] != true {
+		Data.IsLogin = false
+	} else {
+		Data.IsLogin = session.Values["IsLogin"].(bool)
+		Data.NameUser = session.Values["Name"].(string)
+	}
+
+	fm := session.Flashes("message")
+
+	var flashes []string
+	if len(fm) > 0 {
+		session.Save(r, w)
+
+		for _, fl := range fm {
+			flashes = append(flashes, fl.(string))
+		}
+	}
+	Data.FlashData = strings.Join(flashes, "")
+
+	respData := map[string]interface{}{
+		"Data": Data,
+	}
+	w.WriteHeader(http.StatusOK)
+	tmpl.Execute(w, respData)
+}
+
+// Project Management Section
 func project(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -115,54 +211,6 @@ func project(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	tmpl.Execute(w, DataDetail)
-}
-
-func projectDetail(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	id, _ := strconv.Atoi(mux.Vars(r)["id"])
-
-	var tmpl, err = template.ParseFiles("views/project-detail.html")
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("message :" + err.Error()))
-		return
-	}
-
-	// Penampung
-	ProjectDetail := structProject{}
-	err = connection.Conn.QueryRow(context.Background(), "SELECT * FROM tb_projects WHERE id=$1", id).Scan(&ProjectDetail.ID, &ProjectDetail.Name, &ProjectDetail.Start, &ProjectDetail.End, &ProjectDetail.Description, &ProjectDetail.Tech, &ProjectDetail.Image)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("message : " + err.Error()))
-		return
-	}
-
-	// Project := structProject
-	var Project structProject
-	for _, data := range Projects {
-		if data.ID == id {
-			Project = data
-			break
-		}
-	}
-
-	DataDetail := map[string]interface{}{
-		"Data":    Data,
-		"Project": Project,
-	}
-
-	w.WriteHeader(http.StatusOK)
-	tmpl.Execute(w, DataDetail)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 }
 
 func projectPost(w http.ResponseWriter, r *http.Request) {
@@ -203,10 +251,10 @@ func projectPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/project", http.StatusMovedPermanently)
 }
 
-func projectEdit(w http.ResponseWriter, r *http.Request) {
+func projectDetail(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	var tmpl, err = template.ParseFiles("views/project-form.html")
+	var tmpl, err = template.ParseFiles("views/project-detail.html")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("message :" + err.Error()))
@@ -215,36 +263,34 @@ func projectEdit(w http.ResponseWriter, r *http.Request) {
 
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
-	// Project := structProject
-	Project := structProject{}
-	err = connection.Conn.QueryRow(context.Background(), "SELECT id, name, start_date, end_date, description, technologies FROM tb_projects WHERE id=$1", id).Scan(&Project.ID, &Project.Name, &Project.Start, &Project.End, &Project.Description, &Project.Tech)
+	// Penampung
+	db := structProject{}
+
+	err = connection.Conn.QueryRow(context.Background(), "SELECT * FROM tb_projects WHERE id=$1", id).Scan(&db.ID, &db.Name, &db.Start, &db.End, &db.Description, &db.Tech, &db.Image)
 	if err != nil {
-		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("message : " + err.Error()))
 		return
 	}
 
-	// Parsing data kedalam tipe time.Time
-	// timeStart, _ := time.Parse("2006-01-02", Project.Start)
-	// timeEnd, _ := time.Parse("2006-01-02", Project.End)
-	// formatStart := Project.Start.Format("2006-01-02")
-	// formatEnd := Project.End.Format("2006-01-02")
+	db.Duration = getDuration(db.Start, db.End)
 
-	dataPage := map[string]interface{}{
-		"Title": "EDIT MY PROJECT",
-		"url":   "/project/e/{{.Project.ID}}",
-	}
+	// Tampilkan Hasil inputnya
+	// fmt.Println("Project Name : ", db.Name)
+	// fmt.Println("Start Date   : ", db.Start)
+	// fmt.Println("End Date     : ", db.End)
+	// fmt.Println("Duration     : ", db.Duration)
+	// fmt.Println("Description  : ", db.Description)
+	// fmt.Println("Technologies : ", db.Tech)
+	// fmt.Println("================================")
+
 	DataDetail := map[string]interface{}{
 		"Data":    Data,
-		"Page":    dataPage,
-		"Project": Project,
+		"Project": db,
 	}
 
 	w.WriteHeader(http.StatusOK)
 	tmpl.Execute(w, DataDetail)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 }
 
 func projectDelete(w http.ResponseWriter, r *http.Request) {
@@ -262,6 +308,50 @@ func projectDelete(w http.ResponseWriter, r *http.Request) {
 	// Projects = append(Projects[:id], Projects[id+1:]...)
 
 	http.Redirect(w, r, "/", http.StatusMovedPermanently)
+}
+
+func projectEdit(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	var tmpl, err = template.ParseFiles("views/project-form.html")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("message :" + err.Error()))
+		return
+	}
+
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+
+	// Project := structProject
+	db := structProject{}
+	err = connection.Conn.QueryRow(context.Background(), "SELECT id, name, start_date, end_date, description, technologies FROM tb_projects WHERE id=$1", id).Scan(&db.ID, &db.Name, &db.Start, &db.End, &db.Description, &db.Tech)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Parsing data kedalam tipe time.Time
+	// timeStart, _ := time.Parse("2006-01-02", db.Start)
+	// timeEnd, _ := time.Parse("2006-01-02", db.End)
+	// formatStart := db.Start.Format("2006-01-02")
+	// formatEnd := db.End.Format("2006-01-02")
+
+	dataPage := map[string]interface{}{
+		"Title": "EDIT MY PROJECT",
+		"url":   "/project/e/{{.db.ID}}",
+	}
+	DataDetail := map[string]interface{}{
+		"Data":    Data,
+		"Page":    dataPage,
+		"Project": db,
+	}
+
+	w.WriteHeader(http.StatusOK)
+	tmpl.Execute(w, DataDetail)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func projectEditPost(w http.ResponseWriter, r *http.Request) {
@@ -303,20 +393,145 @@ func projectEditPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusMovedPermanently)
 }
 
-func contactMe(w http.ResponseWriter, r *http.Request) {
+func authRegister(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	// var tmpl, err = template.ParseFiles("views/index.html")
 
-	var tmpl, err = template.ParseFiles("views/contact.html")
+	var tmpl, err = template.ParseFiles("views/auth/register.html")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("message :" + err.Error()))
 		return
 	}
 
+	respData := map[string]interface{}{
+		"Data": Data,
+	}
+
 	w.WriteHeader(http.StatusOK)
-	tmpl.Execute(w, Data)
+	tmpl.Execute(w, respData)
 }
 
+func authRegisterPost(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	name := r.PostForm.Get("name")
+	email := r.PostForm.Get("email")
+	password := r.PostForm.Get("password")
+	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(password), 10)
+
+	_, err = connection.Conn.Exec(context.Background(), "INSERT INTO tb_users(name, email, password) VALUES ($1, $2, $3)", name, email, passwordHash)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("message : " + err.Error()))
+		return
+	}
+
+	var store = sessions.NewCookieStore([]byte("SESSION_ID"))
+	session, _ := store.Get(r, "SESSION_ID")
+
+	if session.Values["IsLogin"] == true {
+		http.Redirect(w, r, "/", http.StatusMovedPermanently)
+	}
+
+	session.AddFlash("Successfully Register!", "message")
+	session.Save(r, w)
+
+	http.Redirect(w, r, "/auth/login", http.StatusMovedPermanently)
+}
+
+// Auth Section
+func authLogin(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	var tmpl, err = template.ParseFiles("views/auth/login.html")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("message :" + err.Error()))
+		return
+	}
+
+	var store = sessions.NewCookieStore([]byte("SESSION_ID"))
+	session, _ := store.Get(r, "SESSION_ID")
+
+	if session.Values["IsLogin"] == true {
+		http.Redirect(w, r, "/", http.StatusMovedPermanently)
+	}
+
+	fm := session.Flashes("message")
+
+	var flashes []string
+	if len(fm) > 0 {
+		session.Save(r, w)
+		for _, fl := range fm {
+			flashes = append(flashes, fl.(string))
+		}
+	}
+
+	Data.FlashData = strings.Join(flashes, "")
+
+	respData := map[string]interface{}{
+		"Data": Data,
+	}
+	w.WriteHeader(http.StatusOK)
+	tmpl.Execute(w, respData)
+}
+
+func authLoginPost(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	email := r.PostForm.Get("email")
+	password := r.PostForm.Get("password")
+	user := structUser{}
+
+	// err = connection.Conn.QueryRow(context.Background(), "SELECT * FROM tb_users WHERE email=$1", email).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+
+	err = connection.Conn.QueryRow(context.Background(), "SELECT id,name,email,password FROM tb_users WHERE email=$1", email).Scan(
+		&user.ID, &user.Name, &user.Email, &user.Password,
+	)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("message : " + err.Error()))
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("message : " + err.Error()))
+	}
+
+	var store = sessions.NewCookieStore([]byte("SESSION_ID"))
+	session, _ := store.Get(r, "SESSION_ID")
+
+	session.Values["IsLogin"] = true
+	session.Values["Name"] = user.Name
+	session.Options.MaxAge = 10800
+
+	session.AddFlash("Successfully Login!", "message")
+	session.Save(r, w)
+
+	http.Redirect(w, r, "/", http.StatusMovedPermanently)
+}
+
+// Contact Section
+func authLogout(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println("Logout")
+	var store = sessions.NewCookieStore([]byte("SESSION_ID"))
+	session, _ := store.Get(r, "SESSION_ID")
+	session.Options.MaxAge = -1
+	session.Save(r, w)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// Global Func
 func getDuration(start, end time.Time) string {
 
 	// Store Date with the Format

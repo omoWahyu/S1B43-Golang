@@ -23,6 +23,23 @@ ul li {
   --sub-danger: #fff;
 }
 
+
+.active {
+  color: #e93212 !important;
+}
+
+.btn-active {
+  color: white !important;
+  background-color: #e93212 !important;
+}
+
+.btn-active:hover {
+  background-color: var(--danger) !important;
+}
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
 .my-bg-gradient {
   background-image: linear-gradient(to bottom, #fe4e30, #e0256d);
   /* height: 100%; */
@@ -47,14 +64,8 @@ ul li {
   text-decoration: none !important;
 }
 
-.my-btn-link {
-  color: black !important;
-  font-weight: 500 !important;
-}
-
 .my-btn-link:hover {
   color: #e93212 !important;
-  font-weight: 500 !important;
 }
 
 
@@ -205,9 +216,9 @@ ul li {
   transition: 0.15s ease;
   cursor: pointer;
   position: relative;
-  font-size: .5rem;
+  font-size: .7rem;
   font-weight: 600;
-  padding: 20px;
+  padding: 10px;
   outline: 2px solid #f7f7f7;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
 }
@@ -227,6 +238,7 @@ ul li {
   border-radius: 16px;
   position: absolute;
   white-space: nowrap;
+  border: none;
   outline: 2px solid #ffa33c;
   box-shadow: 0 0 8px rgba(#ffa33c, 0.5);
 }
@@ -240,7 +252,7 @@ ul li {
   text-align: center;
   align-content: center;
   border-radius: 16px;
-  padding: 20px;
+  padding: 10px;
   width: 4.75rem;
   min-height: 4.75rem;
   box-shadow: 0 5px 10px rgba(#000, 0.1);
@@ -256,7 +268,7 @@ ul li {
   text-align: center;
   align-content: center;
   border-radius: 16px;
-  padding: 20px;
+  padding: 10px;
   width: 4.75rem;
   min-height: 4.75rem;
   outline: 2px solid #ffa33c;
