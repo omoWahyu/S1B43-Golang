@@ -81,14 +81,14 @@
             <div class="top">
               <h2>Duration</h2>
               <ul class="list-dates">
-                <li><i class="fa-solid fa-calendar-days"></i> {{.Project.Start}} - {{.Project.End}}</li>
+                <li><i class="fa-solid fa-calendar-days"></i> {{.Time.fStart}} - {{.Time.fEnd}}</li>
                 <li><i class="fa-solid fa-clock"></i> {{.Project.Duration}}</li>
               </ul>
             </div>
             <div class="bottom">
               <h2>Technologies</h2>
               <ul class="list-items">
-                {{range $index, $listTech := .Tech}}
+                {{range $index, $listTech := .Project.Tech}}
                 <li><img src="/public/img/icon/logo-{{$listTech}}.svg" alt="Item Icon">
                   {{if eq $listTech "nodejs"}}
                   <span>Node JS</span>

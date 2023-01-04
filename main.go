@@ -284,8 +284,13 @@ func projectDetail(w http.ResponseWriter, r *http.Request) {
 	// fmt.Println("Technologies : ", db.Tech)
 	// fmt.Println("================================")
 
+	dataTime := map[string]interface{}{
+		"fStart": db.Start.Format("2006-01-02"),
+		"fEnd":   db.Start.Format("2006-01-02"),
+	}
 	DataDetail := map[string]interface{}{
 		"Data":    Data,
+		"Time":    dataTime,
 		"Project": db,
 	}
 
