@@ -7,19 +7,16 @@ import (
 	"log"
 	"net/http"
 	"project-web/connection"
+	"project-web/middleware"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
+	"github.com/jackc/pgx/v4"
 	"golang.org/x/crypto/bcrypt"
 )
-
-// var Data = map[string]interface{}{
-// 	"Title":   "Personal web",
-// 	"IsLogin": true,
-// }
 
 type MetaData struct {
 	Title     string
@@ -47,6 +44,8 @@ type structProject struct {
 	IsLogin bool
 }
 
+var Projects = []structProject{}
+
 type structUser struct {
 	ID       int
 	Name     string
@@ -54,14 +53,13 @@ type structUser struct {
 	Password string
 }
 
-var Projects = []structProject{}
-
 func main() {
 	route := mux.NewRouter()
 
 	connection.DatabaseConnection()
 
 	route.PathPrefix("/public/").Handler(http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
+	route.PathPrefix("/uploads/").Handler(http.StripPrefix("/uploads/", http.FileServer(http.Dir("./uploads"))))
 
 	route.HandleFunc("/", home).Methods("GET").Name("home")
 
@@ -70,7 +68,7 @@ func main() {
 
 	// Project
 	route.HandleFunc("/project", project).Methods("GET")
-	route.HandleFunc("/project", projectPost).Methods("POST")
+	route.HandleFunc("/project", middleware.UploadFile(projectPost)).Methods("POST")
 	route.HandleFunc("/project/{id}", projectDetail).Methods("GET")
 	route.HandleFunc("/project/d/{id}", projectDelete).Methods("GET")
 	route.HandleFunc("/project/e/{id}", projectEdit).Methods("GET")
@@ -103,14 +101,6 @@ func home(w http.ResponseWriter, r *http.Request) {
 	var store = sessions.NewCookieStore([]byte("SESSION_ID"))
 	session, _ := store.Get(r, "SESSION_ID")
 
-	if session.Values["IsLogin"] != true {
-		Data.IsLogin = false
-	} else {
-		Data.IsLogin = session.Values["IsLogin"].(bool)
-		Data.NameUser = session.Values["Name"].(string)
-		Data.IDUser = session.Values["ID"].(int)
-	}
-
 	fm := session.Flashes("message")
 
 	var flashes []string
@@ -123,23 +113,39 @@ func home(w http.ResponseWriter, r *http.Request) {
 	}
 	Data.FlashData = strings.Join(flashes, "")
 
-	rows, err := connection.Conn.Query(context.Background(), "SELECT * FROM tb_projects INNER JOIN tb_users ON tb_projects.id_user = tb_users.id where tb_projects.id_user =$1", Data.IDUser)
+	var result []structProject
+
+	var rows pgx.Rows
+	// var err error
+	if session.Values["IsLogin"] != true {
+		// Session
+		Data.IsLogin = false
+
+		// Query
+		rows, err = connection.Conn.Query(context.Background(), "SELECT id, name, start_date, end_date, description, technologies, image  FROM tb_projects")
+	} else {
+		// Session
+		Data.IsLogin = session.Values["IsLogin"].(bool)
+		Data.NameUser = session.Values["Name"].(string)
+		Data.IDUser = session.Values["ID"].(int)
+
+		// Query
+		rows, err = connection.Conn.Query(context.Background(), "SELECT tb_projects.id, tb_projects.Name, start_date, end_date,description, technologies, image FROM tb_projects LEFT JOIN tb_users ON tb_projects.id_user = tb_users.id where tb_projects.id_user =$1", Data.IDUser)
+	}
+
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
-
-	var result []structProject
 	for rows.Next() {
 		var db = structProject{}
-
-		var err = rows.Scan(&db.ID, &db.Name, &db.Start, &db.End, &db.Description, &db.Tech, &db.Image, &db.ID_User)
+		var err = rows.Scan(&db.ID, &db.Name, &db.Start, &db.End, &db.Description, &db.Tech, &db.Image)
 		if err != nil {
-			fmt.Println("home :" + err.Error())
+			fmt.Println(err.Error())
 			return
 		}
 
-		db.Duration = getDuration(db.Start, db.End)
+		db.Duration = getDuration(db.End)
 		result = append(result, db)
 	}
 
@@ -203,16 +209,6 @@ func project(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var store = sessions.NewCookieStore([]byte("SESSION_ID"))
-	session, _ := store.Get(r, "SESSION_ID")
-
-	if session.Values["IsLogin"] != true {
-		Data.IsLogin = false
-	} else {
-		Data.IsLogin = session.Values["IsLogin"].(bool)
-		Data.NameUser = session.Values["Name"].(string)
-	}
-
 	dataPage := map[string]interface{}{
 		"Title": "ADD MY PROJECT",
 		"url":   "/project/",
@@ -232,13 +228,26 @@ func projectPost(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	ProjName := r.PostForm.Get("project-name")
-	ProjStart := r.PostForm.Get("project-start")
-	ProjEnd := r.PostForm.Get("project-end")
-	ProjDescription := r.PostForm.Get("project-description")
-	ProjTech := r.Form["project-tech"]
+	var store = sessions.NewCookieStore([]byte("SESSION_ID"))
+	session, _ := store.Get(r, "SESSION_ID")
 
-	_, err = connection.Conn.Exec(context.Background(), "INSERT INTO tb_projects(name, start_date, end_date, description, technologies, image) VALUES ($1, $2, $3, $4,$5, 'project.webp')", ProjName, ProjStart, ProjEnd, ProjDescription, ProjTech)
+	if session.Values["IsLogin"] != true {
+		Data.IsLogin = false
+	} else {
+		Data.IsLogin = session.Values["IsLogin"].(bool)
+		Data.NameUser = session.Values["Name"].(string)
+	}
+
+	Name := r.PostForm.Get("project-name")
+	Start := r.PostForm.Get("project-start")
+	End := r.PostForm.Get("project-end")
+	Description := r.PostForm.Get("project-description")
+	Tech := r.Form["project-tech"]
+	dataContext := r.Context().Value("dataFile")
+	Image := dataContext.(string)
+	currentUser := session.Values["ID"].(int)
+
+	_, err = connection.Conn.Exec(context.Background(), "INSERT INTO tb_projects(name, start_date, end_date, description, technologies, image, id_user) VALUES ($1, $2, $3, $4, $5, $6, $7)", Name, Start, End, Description, Tech, Image, currentUser)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("message : " + err.Error()))
@@ -246,19 +255,21 @@ func projectPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parsing data kedalam tipe time.Time
-	timeStart, _ := time.Parse("2006-01-02", ProjStart)
-	timeEnd, _ := time.Parse("2006-01-02", ProjEnd)
+	// timeStart, _ := time.Parse("2006-01-02", Start)
+	timeEnd, _ := time.Parse("2006-01-02", End)
 
 	// Hasilkan data Durasi berdasarkan variable yang telah diparsing
-	ProjDuration := getDuration(timeStart, timeEnd)
+	Duration := getDuration(timeEnd)
 
 	// Tampilkan Hasil inputnya
-	fmt.Println("Project Name : ", ProjName)
-	fmt.Println("Start Date   : ", ProjStart)
-	fmt.Println("End Date     : ", ProjEnd)
-	fmt.Println("Duration     : ", ProjDuration)
-	fmt.Println("Description  : ", ProjDescription)
-	fmt.Println("Technologies : ", ProjTech)
+	fmt.Println("Project Name  : ", Name)
+	fmt.Println("Start Date    : ", Start)
+	fmt.Println("End Date      : ", End)
+	fmt.Println("Duration      : ", Duration)
+	fmt.Println("Description   : ", Description)
+	fmt.Println("Technologies  : ", Tech)
+	fmt.Println("Image         : ", Image)
+	fmt.Println("User who post : ", currentUser)
 	fmt.Println("================================")
 
 	http.Redirect(w, r, "/project", http.StatusMovedPermanently)
@@ -286,7 +297,7 @@ func projectDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db.Duration = getDuration(db.Start, db.End)
+	db.Duration = getDuration(db.End)
 
 	// Tampilkan Hasil inputnya
 	// fmt.Println("Project Name : ", db.Name)
@@ -311,23 +322,6 @@ func projectDetail(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, DataDetail)
 }
 
-func projectDelete(w http.ResponseWriter, r *http.Request) {
-
-	id, _ := strconv.Atoi(mux.Vars(r)["id"])
-
-	_, err := connection.Conn.Exec(context.Background(), "DELETE FROM tb_projects WHERE id=$1", id)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("message : " + err.Error()))
-		return
-	}
-
-	// fmt.Println(id)
-	// Projects = append(Projects[:id], Projects[id+1:]...)
-
-	http.Redirect(w, r, "/", http.StatusMovedPermanently)
-}
-
 func projectEdit(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -342,7 +336,7 @@ func projectEdit(w http.ResponseWriter, r *http.Request) {
 
 	// Project := structProject
 	db := structProject{}
-	err = connection.Conn.QueryRow(context.Background(), "SELECT id, name, start_date, end_date, description, technologies, image FROM tb_projects WHERE id=$1", id).Scan(&db.ID, &db.Name, &db.Start, &db.End, &db.Description, &db.Tech)
+	err = connection.Conn.QueryRow(context.Background(), "SELECT id, name, start_date, end_date, description, technologies, image FROM tb_projects WHERE id=$1", id).Scan(&db.ID, &db.Name, &db.Start, &db.End, &db.Description, &db.Tech, &db.Image)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -372,30 +366,45 @@ func projectEditPost(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	ProjName := r.PostForm.Get("project-name")
-	ProjStart := r.PostForm.Get("project-start")
-	ProjEnd := r.PostForm.Get("project-end")
-	ProjDescription := r.PostForm.Get("project-description")
-	ProjTech := r.Form["project-tech"]
+	Name := r.PostForm.Get("project-name")
+	Start := r.PostForm.Get("project-start")
+	End := r.PostForm.Get("project-end")
+	Description := r.PostForm.Get("project-description")
+	Tech := r.Form["project-tech"]
+	dataContext := r.Context().Value("dataFile")
+	Image := dataContext.(string)
 
 	// Parsing data kedalam tipe time.Time
-	timeStart, _ := time.Parse("2006-01-02", ProjStart)
-	timeEnd, _ := time.Parse("2006-01-02", ProjEnd)
+	timeStart, _ := time.Parse("2006-01-02", Start)
+	timeEnd, _ := time.Parse("2006-01-02", End)
 
 	// Hasilkan data Durasi berdasarkan variable yang telah diparsing
-	// ProjDuration := getDuration(timeStart, timeEnd)
 
-	fmt.Println("Project Name : ", ProjName)
-	fmt.Println("Start Date   : ", ProjStart)
-	fmt.Println("End Date     : ", ProjEnd)
+	fmt.Println("Project Name : ", Name)
+	fmt.Println("Start Date   : ", Start)
+	fmt.Println("End Date     : ", End)
 	// fmt.Println("Duration     : ", ProjDuration)
-	fmt.Println("Description  : ", ProjDescription)
-	fmt.Println("Technologies : ", ProjTech)
+	fmt.Println("Description  : ", Description)
+	fmt.Println("Technologies : ", Tech)
 	fmt.Println("================================")
 
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
-	_, err = connection.Conn.Exec(context.Background(), "UPDATE tb_projects SET name = $1, start_date = $2, end_date = $3, description = $4, technologies = $5 WHERE id=$6", ProjName, timeStart, timeEnd, ProjDescription, ProjTech, id)
+	_, err = connection.Conn.Exec(context.Background(), "UPDATE tb_projects SET name = $1, start_date = $2, end_date = $3, description = $4, technologies = $5 image = $6 WHERE id=$7", Name, timeStart, timeEnd, Description, Tech, Image, id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("message : " + err.Error()))
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusMovedPermanently)
+}
+
+func projectDelete(w http.ResponseWriter, r *http.Request) {
+
+	id, _ := strconv.Atoi(mux.Vars(r)["id"])
+
+	_, err := connection.Conn.Exec(context.Background(), "DELETE FROM tb_projects WHERE id=$1", id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("message : " + err.Error()))
@@ -546,14 +555,10 @@ func authLogout(w http.ResponseWriter, r *http.Request) {
 }
 
 // Global Func
-func getDuration(start, end time.Time) string {
-
-	// Store Date with the Format
-	// DataStart, _ := time.Parse("2006-01-02", start)
-	// DataEnd, _ := time.Parse("2006-01-02", end)
+func getDuration(end time.Time) string {
 
 	// Get data Range
-	DataRange := end.Sub(start)
+	DataRange := end.Sub(time.Now())
 
 	// Calc duration
 	yearRange := int(DataRange.Hours() / (12 * 30 * 24))
@@ -562,16 +567,37 @@ func getDuration(start, end time.Time) string {
 	dayRange := int(DataRange.Hours() / 24)
 
 	if yearRange != 0 {
-		return "Duration - " + strconv.Itoa(yearRange) + " Year"
+		if yearRange >= 0 {
+			return "Duration : " + strconv.Itoa(yearRange) + " Year Left"
+
+		}
+		str := strconv.Itoa(yearRange)
+		return "Duration : " + strings.ReplaceAll(str, "-", "") + " Year Ago"
 	}
 	if monthRange != 0 {
-		return "Duration - " + strconv.Itoa(monthRange) + " Month"
+		if monthRange >= 0 {
+			return "Duration : " + strconv.Itoa(monthRange) + " Month Left"
+
+		}
+		str := strconv.Itoa(monthRange)
+		return "Duration : " + strings.ReplaceAll(str, "-", "") + " Month Ago"
 	}
 	if weekRange != 0 {
-		return "Duration - " + strconv.Itoa(weekRange) + " Week Left"
+		if weekRange >= 0 {
+			return "Duration : " + strconv.Itoa(weekRange) + " Week Left"
+
+		}
+		str := strconv.Itoa(weekRange)
+		return "Duration : " + strings.ReplaceAll(str, "-", "") + " Week Ago"
 	}
 	if dayRange != 0 {
-		return "Duration - " + strconv.Itoa(dayRange) + " Day Left"
+		if dayRange >= 0 {
+			return "Duration : " + strconv.Itoa(dayRange) + " Day Left"
+
+		}
+		str := strconv.Itoa(dayRange)
+		return "Duration : " + strings.ReplaceAll(str, "-", "") + " Day Ago"
+
 	}
-	return "Duration - Today"
+	return "Duration : Today"
 }
