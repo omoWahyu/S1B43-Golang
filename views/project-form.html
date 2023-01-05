@@ -75,23 +75,23 @@
         <form class="fw-semibold" action="{{.Page.URL}}" method="POST" enctype="multipart/form-data">
           <div class="mb-4">
             <label for="project-name">Project Name</label>
-            <input id="project-name" name="project-name" type="text" class="form-control" value="{{.Project.Name}}"
+            <input id="project-name" name="project-name" type="text" class="p-3 form-control" value="{{.Project.Name}}"
               placeholder="Fill it with your Full Name">
           </div>
           <div class="row mb-4">
             <div class="col">
               <label for="project-start">Start Date</label>
-              <input id="project-start" name="project-start" type="date" class="form-control"
+              <input id="project-start" name="project-start" type="date" class="p-3 form-control"
                 value="{{.Project.Start}}">
             </div>
             <div class="col">
               <label for="project-end">End Date</label>
-              <input id="project-end" name="project-end" type="date" class="form-control" value="{{.Project.End}}">
+              <input id="project-end" name="project-end" type="date" class="p-3 form-control" value="{{.Project.End}}">
             </div>
           </div>
           <div class=" mb-4">
             <label for="project-description">Your Message</label>
-            <textarea id="project-description" name="project-description" rows="3" class="form-control"
+            <textarea id="project-description" name="project-description" rows="3" class="p-3 form-control"
               placeholder="Say Something ...">{{.Project.Description}}</textarea>
           </div>
 
@@ -131,7 +131,7 @@
             <input id="input-image" name="input-image" type="file" class="form-control">
           </div>
           <div class="d-flex justify-content-end">
-            <button class="btn btn-primary px-5 border-white" type="submit">Submit</button>
+            <button class="btn btn-lg btn-warning px-5 py-3 fw-semibold" type="submit">Submit</button>
           </div>
         </form>
       </div>
