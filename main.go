@@ -40,8 +40,7 @@ type structProject struct {
 	Duration    string
 	Image       string
 	ID_User     int
-	// Author  string
-	IsLogin bool
+	IsLogin     bool
 }
 
 var Projects = []structProject{}
@@ -510,8 +509,6 @@ func authLoginPost(w http.ResponseWriter, r *http.Request) {
 	email := r.PostForm.Get("email")
 	password := r.PostForm.Get("password")
 	db := structUser{}
-
-	// err = connection.Conn.QueryRow(context.Background(), "SELECT * FROM tb_users WHERE email=$1", email).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
 
 	err = connection.Conn.QueryRow(context.Background(), "SELECT id,name,email,password FROM tb_users WHERE email=$1", email).Scan(
 		&db.ID, &db.Name, &db.Email, &db.Password,
