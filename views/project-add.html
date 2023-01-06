@@ -66,6 +66,19 @@
     </div>
   </nav>
 
+  {{if .Data.FlashData}}
+  <!-- Flashdata -->
+  <div class="alert alert-success d-flex gap-3 rounded-4 align-items-center alert-dismissible fade show z-3"
+    role="alert"
+    style="width: fit-content; position: fixed; bottom: 1rem; right: 1rem !important; margin: 0 !important;">
+    <i class="fa-solid fa-check-circle"></i>
+    <span>
+      <strong> {{.Data.FlashData}}</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </span>
+  </div>
+  {{end}}
+
   <!-- Form Add My Project -->
   <section class="my-bg-gradient text-white py-5" style="min-height: 100vh;">
     <div class="mx-auto my-max-w-sm px-3" style="padding-top: 5rem;">

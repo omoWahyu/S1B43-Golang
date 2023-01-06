@@ -144,7 +144,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		db.Duration = getDuration(db.End)
+		db.Duration = getDuration(db.Start, db.End)
 		result = append(result, db)
 	}
 
@@ -248,11 +248,11 @@ func projectPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parsing data kedalam tipe time.Time
-	// timeStart, _ := time.Parse("2006-01-02", Start)
+	timeStart, _ := time.Parse("2006-01-02", Start)
 	timeEnd, _ := time.Parse("2006-01-02", End)
 
 	// Hasilkan data Durasi berdasarkan variable yang telah diparsing
-	Duration := getDuration(timeEnd)
+	Duration := getDuration(timeStart, timeEnd)
 
 	// Tampilkan Hasil inputnya
 	fmt.Println("Project Name  : ", Name)
@@ -290,7 +290,7 @@ func projectDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db.Duration = getDuration(db.End)
+	db.Duration = getDuration(db.Start, db.End)
 
 	// Tampilkan Hasil inputnya
 	// fmt.Println("Project Name : ", db.Name)
@@ -546,10 +546,10 @@ func authLogout(w http.ResponseWriter, r *http.Request) {
 }
 
 // Global Func
-func getDuration(end time.Time) string {
+func getDuration(start, end time.Time) string {
 
 	// Get data Range
-	DataRange := end.Sub(time.Now())
+	DataRange := end.Sub(start)
 
 	// Calc duration
 	yearRange := int(DataRange.Hours() / (12 * 30 * 24))
@@ -559,36 +559,37 @@ func getDuration(end time.Time) string {
 
 	if yearRange != 0 {
 		if yearRange >= 0 {
-			return "Duration : " + strconv.Itoa(yearRange) + " Year Left"
+			return "Duration : " + strconv.Itoa(yearRange) + " Year"
 
 		}
 		str := strconv.Itoa(yearRange)
-		return "Duration : " + strings.ReplaceAll(str, "-", "") + " Year Ago"
+		return "Duration : " + strings.ReplaceAll(str, "-", "") + " Year"
 	}
 	if monthRange != 0 {
 		if monthRange >= 0 {
-			return "Duration : " + strconv.Itoa(monthRange) + " Month Left"
+			return "Duration : " + strconv.Itoa(monthRange) + " Month"
 
 		}
 		str := strconv.Itoa(monthRange)
-		return "Duration : " + strings.ReplaceAll(str, "-", "") + " Month Ago"
+		return "Duration : " + strings.ReplaceAll(str, "-", "") + " Month"
 	}
 	if weekRange != 0 {
 		if weekRange >= 0 {
-			return "Duration : " + strconv.Itoa(weekRange) + " Week Left"
+			return "Duration : " + strconv.Itoa(weekRange) + " Week"
 
 		}
 		str := strconv.Itoa(weekRange)
-		return "Duration : " + strings.ReplaceAll(str, "-", "") + " Week Ago"
+		return "Duration : " + strings.ReplaceAll(str, "-", "") + " Week"
 	}
 	if dayRange != 0 {
 		if dayRange >= 0 {
-			return "Duration : " + strconv.Itoa(dayRange) + " Day Left"
+			return "Duration : " + strconv.Itoa(dayRange) + " Day"
 
 		}
 		str := strconv.Itoa(dayRange)
-		return "Duration : " + strings.ReplaceAll(str, "-", "") + " Day Ago"
+		return "Duration : " + strings.ReplaceAll(str, "-", "") + " Day"
 
 	}
+
 	return "Duration : Today"
 }
