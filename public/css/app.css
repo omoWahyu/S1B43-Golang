@@ -23,6 +23,13 @@ ul li {
   --sub-danger: #fff;
 }
 
+.text-truncate__3{
+  overflow: hidden;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+}
 
 .active {
   color: #e93212 !important;

@@ -533,7 +533,7 @@ func authLoginPost(w http.ResponseWriter, r *http.Request) {
 	session.Values["ID"] = db.ID
 	session.Options.MaxAge = 10800
 
-	println(db.ID)
+	// println(db.ID)
 	session.AddFlash("Successfully Login!", "message")
 	session.Save(r, w)
 
