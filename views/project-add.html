@@ -69,30 +69,29 @@
   <!-- Form Add My Project -->
   <section class="my-bg-gradient text-white py-5" style="min-height: 100vh;">
     <div class="mx-auto my-max-w-sm px-3" style="padding-top: 5rem;">
-      <h1 class="card-title fw-bold text-center mb-5">{{.Page.Title}}</h1>
+      <h1 class="card-title fw-bold text-center mb-5">ADD MY PROJECT</h1>
       <div class="card-body">
 
-        <form class="fw-semibold" action="{{.Page.URL}}" method="POST" enctype="multipart/form-data">
+        <form class="fw-semibold" action="/project/" method="POST" enctype="multipart/form-data">
           <div class="mb-4">
             <label for="project-name">Project Name</label>
-            <input id="project-name" name="project-name" type="text" class="p-3 form-control" value="{{.Project.Name}}"
+            <input id="project-name" name="project-name" type="text" class="p-3 form-control" value=""
               placeholder="Fill it with your Full Name">
           </div>
           <div class="row mb-4">
             <div class="col">
               <label for="project-start">Start Date</label>
-              <input id="project-start" name="project-start" type="date" class="p-3 form-control"
-                value="{{.Project.Start}}">
+              <input id="project-start" name="project-start" type="date" class="p-3 form-control" value="">
             </div>
             <div class="col">
               <label for="project-end">End Date</label>
-              <input id="project-end" name="project-end" type="date" class="p-3 form-control" value="{{.Project.End}}">
+              <input id="project-end" name="project-end" type="date" class="p-3 form-control" value="">
             </div>
           </div>
           <div class=" mb-4">
             <label for="project-description">Your Message</label>
             <textarea id="project-description" name="project-description" rows="3" class="p-3 form-control"
-              placeholder="Say Something ...">{{.Project.Description}}</textarea>
+              placeholder="Say Something ..."></textarea>
           </div>
           <div class="form-group__choice text-black">
             <label class="text-white" style="width: 100%;">Technologies</label>

@@ -201,21 +201,15 @@ func contactMe(w http.ResponseWriter, r *http.Request) {
 func project(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	var tmpl, err = template.ParseFiles("views/project-form.html")
+	var tmpl, err = template.ParseFiles("views/project-add.html")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("message :" + err.Error()))
 		return
 	}
 
-	dataPage := map[string]interface{}{
-		"Title": "ADD MY PROJECT",
-		"url":   "/project/",
-	}
-
 	DataDetail := map[string]interface{}{
 		"Data": Data,
-		"Page": dataPage,
 	}
 	w.WriteHeader(http.StatusOK)
 	tmpl.Execute(w, DataDetail)
@@ -341,13 +335,13 @@ func projectEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dataPage := map[string]interface{}{
-		"Title": "EDIT MY PROJECT",
-		"url":   "/project/e/{{.db.ID}}",
+	dataTime := map[string]interface{}{
+		"fStart": db.Start.Format("2006-01-02"),
+		"fEnd":   db.Start.Format("2006-01-02"),
 	}
 	DataDetail := map[string]interface{}{
 		"Data":    Data,
-		"Page":    dataPage,
+		"Time":    dataTime,
 		"Project": db,
 	}
 

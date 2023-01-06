@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{.Data.Title}}</title>
+  <link rel="shortcut icon" href="/public/favicon.ico" type="image/x-icon">
+  <link rel="preload" href="/public/css/app.css" as="style">
+  <link rel="stylesheet" href="/public/css/app.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
+    integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+    crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <nav class="fixed-top shadow navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid container">
+      <a class="navbar-brand" href="/">
+        <img src="/public/img/logo-DW.webp" width="64" alt="Dumbways Logo" loading="lazy">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link my-btn-link" href="/">Home</a>
+          </li>
+          {{if .Data.IsLogin}}
+          <li class="nav-item">
+            <a class="nav-link my-btn-link active" href="/project">Add Project</a>
+          </li>
+          {{end}}
+        </ul>
+        <div class="d-flex gap-3">
+          {{if .Data.IsLogin}}
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <span class="nav-link"><strong class="fw-semibold">Hello, {{.Data.NameUser}}</strong></span>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link my-btn-link" href="/auth/logout">Logout</a>
+            </li>
+          </ul>
+          {{else}}
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link my-btn-link" href="/auth/login">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link my-btn-link" href="/auth/register">Registration</a>
+            </li>
+          </ul>
+          {{end}}
+          <a class="btn btn-outline-danger px-4 fw-semibold" href="/contact">Contact Me</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Form Add My Project -->
+  <section class="my-bg-gradient text-white py-5" style="min-height: 100vh;">
+    <div class="mx-auto my-max-w-sm px-3" style="padding-top: 5rem;">
+      <h1 class="card-title fw-bold text-center mb-5">EDIT MY PROJECT</h1>
+      <div class="card-body">
+
+        <form class="fw-semibold" action="/project/e/{{.db.ID}}" method="POST" enctype="multipart/form-data">
+          <div class="mb-4">
+            <label for="project-name">Project Name</label>
+            <input id="project-name" name="project-name" type="text" class="p-3 form-control" value="{{.Project.Name}}"
+              placeholder="Fill it with your Full Name">
+          </div>
+          <div class="row mb-4">
+            <div class="col">
+              <label for="project-start">Start Date</label>
+              <input id="project-start" name="project-start" type="date" class="p-3 form-control"
+                value="{{.Time.fStart}}">
+            </div>
+            <div class="col">
+              <label for="project-end">End Date</label>
+              <input id="project-end" name="project-end" type="date" class="p-3 form-control" value="{{.Time.fEnd}}">
+            </div>
+          </div>
+          <div class=" mb-4">
+            <label for="project-description">Your Message</label>
+            <textarea id="project-description" name="project-description" rows="3" class="p-3 form-control"
+              placeholder="Say Something ...">{{.Project.Description}}</textarea>
+          </div>
+          <div class="form-group__choice text-black">
+            <label class="text-white" style="width: 100%;">Technologies</label>
+            <label class="checkbox-label">
+              <input type="checkbox" class="checkbox-input" name="project-tech" id="nodejs" value="nodejs">
+              <span class="checkbox-tile">
+                <img src="/public/img/icon/logo-nodejs.svg" alt="Item Icon">
+                <span>Node JS</span>
+              </span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" class="checkbox-input" name="project-tech" id="nextjs" value="nextjs">
+              <span class="checkbox-tile">
+                <img src="/public/img/icon/logo-nextjs.svg" alt="Item Icon">
+                <span>Next JS</span>
+              </span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" class="checkbox-input" name="project-tech" id="reactjs" value="reactjs">
+              <span class="checkbox-tile">
+                <img src="/public/img/icon/logo-reactjs.svg" alt="Item Icon">
+                <span>React JS</span>
+              </span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" class="checkbox-input" name="project-tech" id="typescript" value="typescript">
+              <span class="checkbox-tile">
+                <img src="/public/img/icon/logo-typescript.svg" alt="Item Icon">
+                <span>Typescript</span>
+              </span>
+            </label>
+          </div>
+          <figure>
+            <img style="width: 100%; height:100%; object-fit: cover;" src="/uploads/{{.Project.Image}}"
+              alt="Unsplash Image">
+            <figcaption>{{.Project.Image}}</figcaption>
+          </figure>
+          <div class="my-4">
+            <label for="input-image">Upload Image</label>
+            <input id="input-image" name="input-image" type="file" class="form-control">
+          </div>
+          <div class="d-flex justify-content-end">
+            <button class="btn btn-lg btn-warning px-5 py-3 fw-semibold" type="submit">Submit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer class="navbar bg-body-tertiary">
+    <div class="container">
+      <a class="nav-link d-flex gap-2 align-items-center" aria-current="page" href="index.html"><img
+          src="https://github.com/hyujisf.png" width="40" alt="hyujisf profile" class="rounded-pill"><span
+          class="fw-semibold "><i class="fa-brands fa-github"></i> Hyujisf</span></a>
+    </div>
+  </footer>
+  <!-- Js ini tidak lagi digunakan pada Golang, karena fungsinya telah tergantikan -->
+  <!-- <script src="/public/js/project.js"></script> -->
+</body>
+
+</html>
