@@ -318,7 +318,7 @@ func projectDetail(w http.ResponseWriter, r *http.Request) {
 func projectEdit(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	var tmpl, err = template.ParseFiles("views/project-form.html")
+	var tmpl, err = template.ParseFiles("views/project-edit.html")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("message :" + err.Error()))
