@@ -231,6 +231,18 @@ func projectPost(w http.ResponseWriter, r *http.Request) {
 		Data.NameUser = session.Values["Name"].(string)
 	}
 
+	fm := session.Flashes("message")
+
+	var flashes []string
+	if len(fm) > 0 {
+		session.Save(r, w)
+
+		for _, fl := range fm {
+			flashes = append(flashes, fl.(string))
+		}
+	}
+	Data.FlashData = strings.Join(flashes, "")
+
 	Name := r.PostForm.Get("project-name")
 	Start := r.PostForm.Get("project-start")
 	End := r.PostForm.Get("project-end")
@@ -265,11 +277,24 @@ func projectPost(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("User who post : ", currentUser)
 	fmt.Println("================================")
 
+	session.AddFlash("New Project Added!", "message")
+	session.Save(r, w)
+
 	http.Redirect(w, r, "/project", http.StatusMovedPermanently)
 }
 
 func projectDetail(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	var store = sessions.NewCookieStore([]byte("SESSION_ID"))
+	session, _ := store.Get(r, "SESSION_ID")
+
+	if session.Values["IsLogin"] != true {
+		Data.IsLogin = false
+	} else {
+		Data.IsLogin = session.Values["IsLogin"].(bool)
+		Data.NameUser = session.Values["Name"].(string)
+	}
 
 	var tmpl, err = template.ParseFiles("views/project-detail.html")
 	if err != nil {
@@ -325,6 +350,28 @@ func projectEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var store = sessions.NewCookieStore([]byte("SESSION_ID"))
+	session, _ := store.Get(r, "SESSION_ID")
+
+	if session.Values["IsLogin"] != true {
+		Data.IsLogin = false
+	} else {
+		Data.IsLogin = session.Values["IsLogin"].(bool)
+		Data.NameUser = session.Values["Name"].(string)
+	}
+
+	fm := session.Flashes("message")
+
+	var flashes []string
+	if len(fm) > 0 {
+		session.Save(r, w)
+
+		for _, fl := range fm {
+			flashes = append(flashes, fl.(string))
+		}
+	}
+	Data.FlashData = strings.Join(flashes, "")
+
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
 	// Project := structProject
@@ -359,6 +406,9 @@ func projectEditPost(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
+	var store = sessions.NewCookieStore([]byte("SESSION_ID"))
+	session, _ := store.Get(r, "SESSION_ID")
+
 	Name := r.PostForm.Get("project-name")
 	Start := r.PostForm.Get("project-start")
 	End := r.PostForm.Get("project-end")
@@ -389,6 +439,9 @@ func projectEditPost(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("message : " + err.Error()))
 		return
 	}
+
+	session.AddFlash("Project are Updated", "message")
+	session.Save(r, w)
 
 	http.Redirect(w, r, "/", http.StatusMovedPermanently)
 }
@@ -447,9 +500,9 @@ func authRegisterPost(w http.ResponseWriter, r *http.Request) {
 	var store = sessions.NewCookieStore([]byte("SESSION_ID"))
 	session, _ := store.Get(r, "SESSION_ID")
 
-	if session.Values["IsLogin"] == true {
-		http.Redirect(w, r, "/", http.StatusMovedPermanently)
-	}
+	// if session.Values["IsLogin"] == true {
+	// 	http.Redirect(w, r, "/", http.StatusMovedPermanently)
+	// }
 
 	session.AddFlash("Successfully Register!", "message")
 	session.Save(r, w)
@@ -471,9 +524,9 @@ func authLogin(w http.ResponseWriter, r *http.Request) {
 	var store = sessions.NewCookieStore([]byte("SESSION_ID"))
 	session, _ := store.Get(r, "SESSION_ID")
 
-	if session.Values["IsLogin"] == true {
-		http.Redirect(w, r, "/", http.StatusMovedPermanently)
-	}
+	// if session.Values["IsLogin"] == true {
+	// 	http.Redirect(w, r, "/", http.StatusMovedPermanently)
+	// }
 
 	fm := session.Flashes("message")
 
@@ -543,6 +596,7 @@ func authLogout(w http.ResponseWriter, r *http.Request) {
 	session.Options.MaxAge = -1
 	session.Save(r, w)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+
 }
 
 // Global Func
