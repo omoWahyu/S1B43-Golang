@@ -115,6 +115,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	var result []structProject
 
 	var rows pgx.Rows
+
 	// var err error
 	if session.Values["IsLogin"] != true {
 		// Session
@@ -123,6 +124,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 		// Query
 		rows, err = connection.Conn.Query(context.Background(), "SELECT id, name, start_date, end_date, description, technologies, image  FROM tb_projects")
 	} else {
+
 		// Session
 		Data.IsLogin = session.Values["IsLogin"].(bool)
 		Data.NameUser = session.Values["Name"].(string)
@@ -136,6 +138,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err.Error())
 		return
 	}
+
 	for rows.Next() {
 		var db = structProject{}
 		var err = rows.Scan(&db.ID, &db.Name, &db.Start, &db.End, &db.Description, &db.Tech, &db.Image)
@@ -280,7 +283,7 @@ func projectPost(w http.ResponseWriter, r *http.Request) {
 	session.AddFlash("New Project Added!", "message")
 	session.Save(r, w)
 
-	http.Redirect(w, r, "/project", http.StatusMovedPermanently)
+	http.Redirect(w, r, "/", http.StatusMovedPermanently)
 }
 
 func projectDetail(w http.ResponseWriter, r *http.Request) {
@@ -316,15 +319,6 @@ func projectDetail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	db.Duration = getDuration(db.Start, db.End)
-
-	// Tampilkan Hasil inputnya
-	// fmt.Println("Project Name : ", db.Name)
-	// fmt.Println("Start Date   : ", db.Start)
-	// fmt.Println("End Date     : ", db.End)
-	// fmt.Println("Duration     : ", db.Duration)
-	// fmt.Println("Description  : ", db.Description)
-	// fmt.Println("Technologies : ", db.Tech)
-	// fmt.Println("================================")
 
 	dataTime := map[string]interface{}{
 		"fStart": db.Start.Format("2006-01-02"),
@@ -421,12 +415,9 @@ func projectEditPost(w http.ResponseWriter, r *http.Request) {
 	timeStart, _ := time.Parse("2006-01-02", Start)
 	timeEnd, _ := time.Parse("2006-01-02", End)
 
-	// Hasilkan data Durasi berdasarkan variable yang telah diparsing
-
 	fmt.Println("Project Name : ", Name)
 	fmt.Println("Start Date   : ", Start)
 	fmt.Println("End Date     : ", End)
-	// fmt.Println("Duration     : ", ProjDuration)
 	fmt.Println("Description  : ", Description)
 	fmt.Println("Technologies : ", Tech)
 	fmt.Println("================================")

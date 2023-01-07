@@ -110,28 +110,32 @@
           <div class="form-group__choice text-black">
             <label class="text-white" style="width: 100%;">Technologies</label>
             <label class="checkbox-label">
-              <input type="checkbox" class="checkbox-input" name="project-tech" id="nodejs" value="nodejs">
+              <input type="checkbox" class="checkbox-input" name="project-tech" id="nodejs" value="nodejs" {{ range
+                $index, $data :=.Project.Tech }} {{ if (eq $data "nodejs" ) }} checked {{ end }} {{ end }}>
               <span class="checkbox-tile">
                 <img src="/public/img/icon/logo-nodejs.svg" alt="Item Icon">
                 <span>Node JS</span>
               </span>
             </label>
             <label class="checkbox-label">
-              <input type="checkbox" class="checkbox-input" name="project-tech" id="nextjs" value="nextjs">
+              <input type="checkbox" class="checkbox-input" name="project-tech" id="nextjs" value="nextjs" {{ range
+                $index, $data :=.Project.Tech }} {{ if (eq $data "nextjs" ) }} checked {{ end }} {{ end }}>
               <span class="checkbox-tile">
                 <img src="/public/img/icon/logo-nextjs.svg" alt="Item Icon">
                 <span>Next JS</span>
               </span>
             </label>
             <label class="checkbox-label">
-              <input type="checkbox" class="checkbox-input" name="project-tech" id="reactjs" value="reactjs">
+              <input type="checkbox" class="checkbox-input" name="project-tech" id="reactjs" value="reactjs" {{ range
+                $index, $data :=.Project.Tech }} {{ if (eq $data "reactjs" ) }} checked {{ end }} {{ end }}>
               <span class="checkbox-tile">
                 <img src="/public/img/icon/logo-reactjs.svg" alt="Item Icon">
                 <span>React JS</span>
               </span>
             </label>
             <label class="checkbox-label">
-              <input type="checkbox" class="checkbox-input" name="project-tech" id="typescript" value="typescript">
+              <input type="checkbox" class="checkbox-input" name="project-tech" id="typescript" value="typescript" {{
+                range $index, $data :=.Project.Tech }} {{ if (eq $data "typescript" ) }} checked {{ end }} {{ end }}>
               <span class="checkbox-tile">
                 <img src="/public/img/icon/logo-typescript.svg" alt="Item Icon">
                 <span>Typescript</span>
