@@ -7,6 +7,10 @@
   font-family: 'Poppins', sans-serif;
 }
 
+ul li {
+  list-style: none;
+}
+
 :root {
   /* Colors */
   --primary: #ffa33c;
@@ -19,6 +23,30 @@
   --sub-danger: #fff;
 }
 
+.text-truncate__3{
+  overflow: hidden;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+}
+
+.active {
+  color: #e93212 !important;
+}
+
+.btn-active {
+  color: white !important;
+  background-color: #e93212 !important;
+}
+
+.btn-active:hover {
+  background-color: var(--danger) !important;
+}
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
 .my-bg-gradient {
   background-image: linear-gradient(to bottom, #fe4e30, #e0256d);
   /* height: 100%; */
@@ -28,31 +56,20 @@
   max-width: 480px;
 }
 
-/* Bootstrap btn color reset */
-/* 
-.btn-primary {
-  background-color: aliceblue !important;
-  color: black !important;
-}
-
-.btn-primary:hover {
-  background-color: rgb(191, 206, 220) !important;
-  color: black !important;
-} */
 .btn-link {
   text-decoration: none !important;
 }
 
-.my-btn-link {
-  color: black !important;
-  font-weight: 500 !important;
-}
-
 .my-btn-link:hover {
   color: #e93212 !important;
-  font-weight: 500 !important;
 }
 
+
+.form-control::file-selector-button{
+  height: 3.5rem !important;
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+}
 
 /* Icons Social */
 
@@ -191,8 +208,8 @@
 
 .checkbox-tile {
   display: flex;
-  width: 4.75rem;
-  min-height: 4.75rem;
+  width: 6rem;
+  min-height: 6rem;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -201,17 +218,17 @@
   transition: 0.15s ease;
   cursor: pointer;
   position: relative;
-  font-size: .5rem;
+  font-size: .7rem;
   font-weight: 600;
-  padding: 20px;
+  padding: 10px;
   outline: 2px solid #f7f7f7;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
 }
 
 .checkbox-tile>img {
   margin: auto;
-  height: 40px;
-  width: 40px;
+  height: 56px;
+  width: 56px;
   padding-bottom: 8px;
 }
 
@@ -223,6 +240,7 @@
   border-radius: 16px;
   position: absolute;
   white-space: nowrap;
+  border: none;
   outline: 2px solid #ffa33c;
   box-shadow: 0 0 8px rgba(#ffa33c, 0.5);
 }
@@ -236,9 +254,7 @@
   text-align: center;
   align-content: center;
   border-radius: 16px;
-  padding: 20px;
-  width: 4.75rem;
-  min-height: 4.75rem;
+  padding: 10px;
   box-shadow: 0 5px 10px rgba(#000, 0.1);
   color: black;
   transition: all 200ms ease-in-out;
@@ -252,9 +268,7 @@
   text-align: center;
   align-content: center;
   border-radius: 16px;
-  padding: 20px;
-  width: 4.75rem;
-  min-height: 4.75rem;
+  padding: 10px;
   outline: 2px solid #ffa33c;
   box-shadow: 0 0 8px rgba(#ffa33c, 0.5);
   transition: all 200ms ease-in-out;

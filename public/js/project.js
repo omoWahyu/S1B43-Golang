@@ -11,11 +11,6 @@ function getData(event) {
   let projectTech = document.getElementsByName('project-tech')
   let projectImage = document.getElementById('project-image').files
 
-  // let image = document.getElementById('f-project__image').value
-  /* Cara diatas akan membuat file menjadi tidak terbaca dan mengubahnya sebagai fake path,
-  karena file input akan menghasilkan data berupa object(URL.createObjectURL()), sehingga perlu diubah seperti berikut:
-  */
-
   // ambil blob URL gambar
   projectImage = URL.createObjectURL(projectImage[0])
 

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Batch 43 - Day 6 | Wahyudi Chrisdianto</title>
+  <link rel="shortcut icon" href="/public/favicon.ico" type="image/x-icon">
+  <link rel="preload" href="/public/css/app.css" as="style">
+  <link rel="stylesheet" href="/public/css/app.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
+    integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+    crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <nav class="fixed-top shadow navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid container">
+      <a class="navbar-brand" href="/">
+        <img src="/public/img/logo-DW.webp" width="64" alt="Dumbways Logo" loading="lazy">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link my-btn-link" href="/">Home</a>
+          </li>
+          {{if .Data.IsLogin}}
+          <li class="nav-item">
+            <a class="nav-link my-btn-link" href="/project">Add Project</a>
+          </li>
+          {{end}}
+        </ul>
+        <div class="d-flex gap-3">
+          {{if .Data.IsLogin}}
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <span class="nav-link"><strong class="fw-semibold">Hello, {{.Data.NameUser}} </strong></span>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link my-btn-link" href="/auth/logout">Logout</a>
+            </li>
+          </ul>
+          {{else}}
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link my-btn-link" href="/auth/login">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link my-btn-link" href="/auth/register">Registration</a>
+            </li>
+          </ul>
+          {{end}}
+          <a class="btn btn-outline-danger px-4 fw-semibold" href="/contact">Contact Me</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <!-- Form Get In Touch -->
+  <section class="my-bg-gradient py-5">
+    <div class="mx-auto container px-3" style="padding-top: 5rem;min-height: 100vh;">
+      <div class="card rounded-4 shadow p-4">
+        <h1 class="card-title fw-bold" style="font-size: 3.5rem; margin-left: 12px !important;">{{.Project.Name}}</h1>
+        <div class="row gap">
+          <div class="col-lg-7 col-xl-8 p-4">
+            <div class="" style="height: 480px; border-radius: 16px; overflow: hidden;">
+              <img style="width: 100%; height:100%; object-fit: cover;" src="/uploads/{{.Project.Image}}"
+                alt="Unsplash Image">
+            </div>
+          </div>
+          <div class="col-lg-5 col-xl-4 p-4">
+            <div class="mb-5">
+              <h2>Duration</h2>
+              <div class="fw-semibold">
+                <div class="my-3"><i class="fa-solid fa-calendar-days"></i> {{.Time.fStart}} - {{.Time.fEnd}}</div>
+                <div class="my-3"><i class="fa-solid fa-clock"></i> {{.Project.Duration}}</div>
+              </div>
+            </div>
+            <div class="">
+              <h2>Technologies</h2>
+              <div class="fw-semibold row row-cols-2">
+                {{range $index, $listTech := .Project.Tech}}
+                <div class="col my-3"><img src="/public/img/icon/logo-{{$listTech}}.svg" width="30" alt="Item Icon">
+                  {{if eq $listTech "nodejs"}}
+                  <span>Node JS</span>
+                  {{else if eq $listTech "reactjs"}}
+                  <span>React JS</span>
+                  {{else if eq $listTech "nextjs"}}
+                  <span>Next JS</span>
+                  {{else}}
+                  <span>Typescript</span>
+                  {{end}}
+                </div>
+                {{end}}
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="card-text p-3 fs-3" style="text-align: justify;">
+          {{.Project.Description}}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="navbar bg-body-tertiary">
+    <div class="container">
+      <a class="nav-link d-flex gap-2 align-items-center" aria-current="page" href="https://github.com/hyujisf"><img
+          src="https://github.com/hyujisf.png" width="40" alt="hyujisf profile" class="rounded-pill"><span
+          class="fw-semibold "><i class="fa-brands fa-github"></i> Hyujisf</span></a>
+    </div>
+  </footer>
+</body>
+
+</html>
